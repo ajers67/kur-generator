@@ -9,9 +9,10 @@ import { ExerciseList } from "@/components/ExerciseList";
 import { HorseProfileForm } from "@/components/HorseProfileForm";
 import { ProgramPreview } from "@/components/ProgramPreview";
 import { ArenaEditor } from "@/components/ArenaEditor";
+import { MusicManager } from "@/components/MusicManager";
 import type { ArenaPath } from "@/components/ArenaCanvas";
 
-const STEPS = ["level", "profile", "exercises", "preview", "arena"] as const;
+const STEPS = ["level", "profile", "exercises", "preview", "arena", "music"] as const;
 type Step = (typeof STEPS)[number];
 
 const STEP_LABELS: Record<Step, string> = {
@@ -20,6 +21,7 @@ const STEP_LABELS: Record<Step, string> = {
   exercises: "Styrker",
   preview: "Program",
   arena: "Bane",
+  music: "Musik",
 };
 
 function generateProgramOrder(
@@ -183,8 +185,22 @@ export default function Home() {
               >
                 Tilbage
               </button>
+              <button
+                onClick={() => setStep("music")}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Næste: Musik
+              </button>
             </div>
           </div>
+        )}
+
+        {step === "music" && selectedLevel && (
+          <MusicManager
+            level={selectedLevel}
+            programOrder={programOrder}
+            onBack={() => setStep("arena")}
+          />
         )}
       </div>
     </main>
