@@ -1,6 +1,7 @@
 import type { KurLevel, Exercise } from "@/data/kur-levels";
 import type { StrengthRating } from "@/data/strength-options";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
+import { generateProgramOrder } from "@/lib/program-generator";
 
 interface Props {
   level: KurLevel;
@@ -11,66 +12,8 @@ interface Props {
   onNext?: () => void;
 }
 
-function generateProgram(
-  level: KurLevel,
-  ratings: Record<number, StrengthRating>,
-  temperament: "calm" | "neutral" | "energetic"
-): Exercise[] {
-  const exercises = [...level.exercises];
-
-  // Separate by gait
-  const skridt = exercises.filter((e) => e.gait === "skridt");
-  const trav = exercises.filter((e) => e.gait === "trav");
-  const galop = exercises.filter((e) => e.gait === "galop");
-  const overgang = exercises.filter((e) => e.gait === "overgang");
-  const passage = exercises.filter((e) => e.gait === "passage");
-  const piaffe = exercises.filter((e) => e.gait === "piaffe");
-
-  // Sort within each gait: strengths first (for prominent placement), weaknesses last
-  const sortByStrength = (a: Exercise, b: Exercise) => {
-    const order: Record<StrengthRating, number> = { strength: 0, neutral: 1, weakness: 2 };
-    const rA = ratings[a.id] || "neutral";
-    const rB = ratings[b.id] || "neutral";
-    return order[rA] - order[rB];
-  };
-
-  trav.sort(sortByStrength);
-  galop.sort(sortByStrength);
-
-  // Build program order based on temperament
-  const entryExercise = overgang.find((e) => e.name.includes("Indridning"));
-  const restOvergang = overgang.filter((e) => !e.name.includes("Indridning"));
-
-  let program: Exercise[] = [];
-
-  // Entry is always first
-  if (entryExercise) program.push(entryExercise);
-
-  if (temperament === "calm") {
-    // Calm horse: can start with skridt, then trav, then galop
-    program = [...program, ...skridt, ...trav, ...galop];
-  } else if (temperament === "energetic") {
-    // Energetic horse: start with trav to settle, then galop, skridt in the middle
-    program = [...program, ...trav, ...galop.slice(0, Math.ceil(galop.length / 2)), ...skridt, ...galop.slice(Math.ceil(galop.length / 2))];
-  } else {
-    // Neutral: trav first, skridt in middle, galop last (classic structure)
-    program = [...program, ...trav, ...skridt, ...galop];
-  }
-
-  // Add passage/piaffe before final (Grand Prix)
-  program = [...program, ...passage, ...piaffe, ...restOvergang];
-
-  // Remove duplicates (entry was already added)
-  const seen = new Set<number>();
-  return program.filter((e) => {
-    if (seen.has(e.id)) return false;
-    seen.add(e.id);
-    return true;
-  });
-}
-
 export function ProgramPreview({ level, ratings, horseName, temperament, onBack, onNext }: Props) {
-  const program = generateProgram(level, ratings, temperament);
+  const program = generateProgramOrder(level, ratings, temperament);
 
   const strengths = program.filter((e) => ratings[e.id] === "strength");
   const weaknesses = program.filter((e) => ratings[e.id] === "weakness");
