@@ -3,16 +3,16 @@
 
 **FreestyleMaker**
 
-Et webbaseret planlægningsværktøj til dressur-freestyle (kür). Rytteren vælger konkurrenceniveau, beskriver hestens profil og styrker, får genereret en programrækkefølge, tegner ruter i ridebanen, og sammensætter musik tilpasset küren. Målgruppen er danske dressurryttere der forbereder freestyle-programmer.
+En intelligent kür-designer til dressurryttere. Systemet genererer et komplet freestyle-program — rækkefølge, ruter i banen og musik — baseret på hestens styrker/svagheder og anerkendte koreografi-principper. Rytteren kan tilpasse forslaget, og systemet validerer løbende at reglerne overholdes. Målgruppen er danske dressurryttere på alle niveauer.
 
-**Core Value:** Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musik — alt i én samlet arbejdsgang.
+**Core Value:** Rytteren får et professionelt kür-forslag med ruter og musik — genereret på sekunder, ikke uger — som de kan tilpasse og gøre til deres eget.
 
 ### Constraints
 
-- **API**: Google Lyria er gratis men eksperimentel — kan ændre vilkår. Design med MusicProvider-abstraktion så vi kan skifte kilde
-- **Client-side**: Al audio-processing skal køre i browseren (Web Audio API / WebSocket)
-- **Generering tager tid**: Lyria streamer real-time — vis loading/progress UI mens musik genereres
-- **Eksisterende kode**: Bevar wizard-strukturen og step 1-5 uændret, fokuser ændringer på step 6 og tværgående forbedringer
+- **API**: Google Lyria er gratis men eksperimentel — MusicProvider-abstraktion
+- **Client-side**: Al logik kører i browseren
+- **Regelmotor**: Validering skal køre real-time mens brugeren tilpasser
+- **Variation**: Generatoren må ikke producere identisk program for samme input — indbyg kontrolleret randomisering
 <!-- GSD:project-end -->
 
 <!-- GSD:stack-start source:codebase/STACK.md -->
