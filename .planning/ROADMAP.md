@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Extract generateProgramOrder to shared module in src/lib/program-generator.ts
-- [ ] 01-02-PLAN.md — Remove dead code: ArenaPreview, HorseProfile, musicPreference, trackIndex
+- [x] 01-02-PLAN.md — Remove dead code: ArenaPreview, HorseProfile, musicPreference, trackIndex
 
 ### Phase 2: Wizard Persistence
 **Goal**: Riders can close the browser or refresh at any point and resume exactly where they left off
