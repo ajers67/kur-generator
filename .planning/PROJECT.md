@@ -22,10 +22,10 @@ Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musi
 
 ### Active
 
-- [ ] Mubert API-integration: søg og generer musik efter BPM, genre og mood
-- [ ] Musikvalg per gangart: brugeren vælger/genererer et nummer per gangart (skridt, trav, galop)
-- [ ] Forhåndsvisning/afspilning af valgt musik direkte i browseren
-- [ ] Mix-generering med valgte Mubert-numre i stedet for uploadede filer
+- [ ] Google Lyria RealTime-integration: generer musik via Gemini API med BPM, genre og mood-kontrol
+- [ ] Musikgenerering per gangart: brugeren angiver stil/mood, Lyria genererer musik med korrekt BPM per gangart
+- [ ] Forhåndsvisning/afspilning af genereret musik direkte i browseren
+- [ ] Mix-generering med Lyria-genererede numre i stedet for uploadede filer
 - [ ] Persistens: gem wizard-state i localStorage så arbejdet ikke tabes ved refresh
 - [ ] Dedupliker programgenerering (én funktion i src/lib/)
 - [ ] Ryd op i dead code (ArenaPreview stub, ubrugt HorseProfile type, ubrugt musicPreference)
@@ -46,21 +46,22 @@ Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musi
 - Al state i useState hooks i page.tsx — ingen persistens
 - Musik-stedet (step 6) er den primære udviklingszone
 - ClicknClear nævnes allerede i MusicManager.tsx som anbefalet kilde
-- Mubert tilbyder gratis API med BPM-kontrol (60-200), genre, mood og instruments
-- Forretningsmodel: Mubert som budget-alternativ, ClicknClear som premium (senere)
+- Google Lyria RealTime (Gemini API) er gratis, BPM 60-200, genre/mood via tekstprompts, WebSocket streaming
+- Forretningsmodel: Lyria som gratis AI-musik, Mubert som budget-katalog (senere), ClicknClear som premium (senere)
 
 ## Constraints
 
-- **API**: Mubert free tier har begrænsninger (25 tracks, 30 min/dag generering) — design UI så brugeren ikke spilder generationer
-- **Client-side**: Al audio-processing skal køre i browseren (Web Audio API)
-- **Licens**: Mubert free tier er kun til ikke-kommerciel brug — kommerciel licens nødvendig ved lancering
+- **API**: Google Lyria er gratis men eksperimentel — kan ændre vilkår. Design med MusicProvider-abstraktion så vi kan skifte kilde
+- **Client-side**: Al audio-processing skal køre i browseren (Web Audio API / WebSocket)
+- **Generering tager tid**: Lyria streamer real-time — vis loading/progress UI mens musik genereres
 - **Eksisterende kode**: Bevar wizard-strukturen og step 1-5 uændret, fokuser ændringer på step 6 og tværgående forbedringer
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Mubert API som første musik-kilde | Gratis, BPM-kontrol, ingen licensproblemer under udvikling | -- Pending |
+| Google Lyria som første musik-kilde | Gratis, BPM 60-200, genre via prompts, WebSocket streaming | -- Pending |
+| Mubert droppet for nu | $49/mo API — for dyrt under udvikling, overvejes senere som katalog-alternativ | -- Pending |
 | Behold upload som fallback | Brugere der allerede har musik skal kunne bruge den | -- Pending |
 | localStorage til persistens | Simpelt, ingen backend nødvendig, dækker use case | -- Pending |
 
@@ -82,4 +83,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-20 after initialization*
+*Last updated: 2026-03-20 after research — switched from Mubert to Google Lyria*
