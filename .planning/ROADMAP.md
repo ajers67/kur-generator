@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Extract generateProgramOrder to shared module in src/lib/program-generator.ts
+- [x] 01-01-PLAN.md — Extract generateProgramOrder to shared module in src/lib/program-generator.ts
 - [ ] 01-02-PLAN.md — Remove dead code: ArenaPreview, HorseProfile, musicPreference, trackIndex
 
 ### Phase 2: Wizard Persistence
@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Code Cleanup | 0/2 | Not started | - |
+| 1. Code Cleanup | 1/2 | In Progress|  |
 | 2. Wizard Persistence | 0/2 | Not started | - |
 | 3. Lyria Music Generation | 0/3 | Not started | - |
 | 4. Music Persistence | 0/1 | Not started | - |

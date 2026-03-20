@@ -30,7 +30,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Code Quality
 
-- [ ] **QUAL-01**: generateProgramOrder() er deduplikeret til én funktion i src/lib/program-generator.ts
+- [x] **QUAL-01**: generateProgramOrder() er deduplikeret til én funktion i src/lib/program-generator.ts
 - [ ] **QUAL-02**: Dead code fjernet: ArenaPreview stub, ubrugt HorseProfile type, ubrugt musicPreference, ubrugt trackIndex
 - [ ] **QUAL-03**: Loading/progress UI-komponent til brug ved musikgenerering og mix-rendering
 
@@ -69,7 +69,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| QUAL-01 | Phase 1 | Pending |
+| QUAL-01 | Phase 1 | Complete |
 | QUAL-02 | Phase 1 | Pending |
 | PERS-01 | Phase 2 | Pending |
 | PERS-03 | Phase 2 | Pending |
