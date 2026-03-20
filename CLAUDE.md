@@ -1,7 +1,7 @@
 <!-- GSD:project-start source:PROJECT.md -->
 ## Project
 
-**Kur Generator**
+**FreestyleMaker**
 
 Et webbaseret planlægningsværktøj til dressur-freestyle (kür). Rytteren vælger konkurrenceniveau, beskriver hestens profil og styrker, får genereret en programrækkefølge, tegner ruter i ridebanen, og sammensætter musik tilpasset küren. Målgruppen er danske dressurryttere der forbereder freestyle-programmer.
 

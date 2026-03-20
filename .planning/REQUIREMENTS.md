@@ -1,4 +1,4 @@
-# Requirements: Kur Generator (Freestyle Music Milestone)
+# Requirements: FreestyleMaker (Freestyle Music Milestone)
 
 **Defined:** 2026-03-20
 **Core Value:** Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musik — alt i én samlet arbejdsgang.

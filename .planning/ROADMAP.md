@@ -1,8 +1,8 @@
-# Roadmap: Kur Generator (Freestyle Music Milestone)
+# Roadmap: FreestyleMaker (Freestyle Music Milestone)
 
 ## Overview
 
-This milestone transforms the kur-generator from a program-planning tool into a complete freestyle workflow with AI-generated music. We start by cleaning up the existing codebase (deduplicate, remove dead code), then add localStorage persistence so wizard progress survives refresh, then integrate Google Lyria for per-gait music generation, persist generated audio in IndexedDB so tracks are not lost, and finally build the mix pipeline that combines gait tracks into one downloadable kur file.
+This milestone transforms the FreestyleMaker from a program-planning tool into a complete freestyle workflow with AI-generated music. We start by cleaning up the existing codebase (deduplicate, remove dead code), then add localStorage persistence so wizard progress survives refresh, then integrate Google Lyria for per-gait music generation, persist generated audio in IndexedDB so tracks are not lost, and finally build the mix pipeline that combines gait tracks into one downloadable kur file.
 
 ## Phases
 

@@ -8,8 +8,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Kür Generator - Dressur Kür Programmering",
-  description: "Lav dit eget dressur kür-program med musik",
+  title: "FreestyleMaker - Dressur Freestyle Programmering",
+  description: "Planlæg dit dressur freestyle-program med AI-genereret musik",
 };
 
 export default function RootLayout({
