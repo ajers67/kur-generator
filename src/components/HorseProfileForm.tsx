@@ -1,12 +1,10 @@
-import { TEMPERAMENT_OPTIONS, MUSIC_GENRES } from "@/data/strength-options";
+import { TEMPERAMENT_OPTIONS } from "@/data/strength-options";
 
 interface Props {
   horseName: string;
   setHorseName: (name: string) => void;
   temperament: "calm" | "neutral" | "energetic";
   setTemperament: (t: "calm" | "neutral" | "energetic") => void;
-  musicPreference: string;
-  setMusicPreference: (p: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -16,8 +14,6 @@ export function HorseProfileForm({
   setHorseName,
   temperament,
   setTemperament,
-  musicPreference,
-  setMusicPreference,
   onNext,
   onBack,
 }: Props) {
@@ -59,29 +55,6 @@ export function HorseProfileForm({
               >
                 <span className="font-medium text-sm text-gray-900">{opt.label}</span>
                 <p className="text-xs text-gray-500 mt-1">{opt.description}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Musikpræference
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {MUSIC_GENRES.map((genre) => (
-              <button
-                key={genre}
-                onClick={() =>
-                  setMusicPreference(musicPreference === genre ? "" : genre)
-                }
-                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                  musicPreference === genre
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {genre}
               </button>
             ))}
           </div>

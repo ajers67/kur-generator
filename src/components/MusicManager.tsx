@@ -56,7 +56,6 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
       };
 
       setTracks((prev) => [...prev, newTrack]);
-      const trackIndex = tracks.length;
 
       try {
         // Decode audio

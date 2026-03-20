@@ -31,7 +31,6 @@ export default function Home() {
   const [exerciseRatings, setExerciseRatings] = useState<Record<number, StrengthRating>>({});
   const [horseName, setHorseName] = useState("");
   const [temperament, setTemperament] = useState<"calm" | "neutral" | "energetic">("neutral");
-  const [musicPreference, setMusicPreference] = useState("");
   const [arenaPaths, setArenaPaths] = useState<ArenaPath[]>([]);
 
   const stepIndex = STEPS.indexOf(step);
@@ -87,8 +86,6 @@ export default function Home() {
             setHorseName={setHorseName}
             temperament={temperament}
             setTemperament={setTemperament}
-            musicPreference={musicPreference}
-            setMusicPreference={setMusicPreference}
             onNext={() => setStep("exercises")}
             onBack={() => setStep("level")}
           />
