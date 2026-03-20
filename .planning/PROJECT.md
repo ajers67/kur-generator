@@ -19,6 +19,8 @@ Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musi
 - Visuel forhåndsvisning af genereret program — existing
 - Arena-tegning med frihåndstegning per øvelse på 20x60 bane — existing
 - Musikhåndtering med upload, BPM-detektion og WAV-mix — existing (men skal ombygges)
+- Deduplikeret programgenerering (én funktion i src/lib/program-generator.ts) — Validated in Phase 1
+- Dead code fjernet (ArenaPreview, HorseProfile, musicPreference, trackIndex, MUSIC_GENRES) — Validated in Phase 1
 
 ### Active
 
@@ -27,8 +29,6 @@ Rytteren kan gå fra valgt niveau til et komplet kür-program med tilpasset musi
 - [ ] Forhåndsvisning/afspilning af genereret musik direkte i browseren
 - [ ] Mix-generering med Lyria-genererede numre i stedet for uploadede filer
 - [ ] Persistens: gem wizard-state i localStorage så arbejdet ikke tabes ved refresh
-- [ ] Dedupliker programgenerering (én funktion i src/lib/)
-- [ ] Ryd op i dead code (ArenaPreview stub, ubrugt HorseProfile type, ubrugt musicPreference)
 
 ### Out of Scope
 
@@ -83,4 +83,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-20 after research — switched from Mubert to Google Lyria*
+*Last updated: 2026-03-20 after Phase 1 completion — code cleanup done*
