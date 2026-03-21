@@ -44,7 +44,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Install zustand, create types, stores, and persistence helpers
+- [x] 02-01-PLAN.md — Install zustand, create types, stores, and persistence helpers
 - [ ] 02-02-PLAN.md — Create project selector UI and refactor page.tsx to use stores
 - [ ] 02-03-PLAN.md — Install vitest and write persistence tests
 

@@ -52,10 +52,10 @@
 
 ### 7. Persistence
 
-- [ ] **PERS-01**: Wizard-state gemmes i localStorage og overlever refresh
+- [x] **PERS-01**: Wizard-state gemmes i localStorage og overlever refresh
 - [ ] **PERS-02**: Genereret musik gemmes i IndexedDB og overlever refresh
-- [ ] **PERS-03**: Arena-ruter og tilpasninger gemmes og overlever refresh
-- [ ] **PERS-04**: Bruger kan starte forfra (ryd alt gemt state)
+- [x] **PERS-03**: Arena-ruter og tilpasninger gemmes og overlever refresh
+- [x] **PERS-04**: Bruger kan starte forfra (ryd alt gemt state)
 
 ### 8. Code Quality (done)
 
@@ -96,9 +96,9 @@
 |-------------|-------|--------|
 | QUAL-01 | Phase 1 | Complete |
 | QUAL-02 | Phase 1 | Complete |
-| PERS-01 | Phase 2 | Pending |
-| PERS-03 | Phase 2 | Pending |
-| PERS-04 | Phase 2 | Pending |
+| PERS-01 | Phase 2 | Complete |
+| PERS-03 | Phase 2 | Complete |
+| PERS-04 | Phase 2 | Complete |
 | PROG-01 | Phase 3 | Pending |
 | PROG-02 | Phase 3 | Pending |
 | PROG-03 | Phase 3 | Pending |
