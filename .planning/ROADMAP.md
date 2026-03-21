@@ -46,7 +46,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Install zustand, create types, stores, and persistence helpers
 - [ ] 02-02-PLAN.md — Create project selector UI and refactor page.tsx to use stores
-- [ ] 02-03-PLAN.md — Install vitest and write persistence tests
+- [x] 02-03-PLAN.md — Install vitest and write persistence tests
 
 ### Phase 3: Intelligent Program Generator
 **Goal**: System generates exercise ordering based on real choreography principles from CHOREOGRAPHY-RULES.md
