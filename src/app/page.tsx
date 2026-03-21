@@ -1,49 +1,163 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
+import { useHydrated } from "@/lib/use-hydration";
+import { useProjectStore } from "@/lib/stores/project-store";
+import { useWizardStore } from "@/lib/stores/wizard-store";
+import { STEPS, STEP_LABELS } from "@/lib/types/project";
+import type { Step } from "@/lib/types/project";
 import { KUR_LEVELS } from "@/data/kur-levels";
-import type { KurLevel, Exercise } from "@/data/kur-levels";
-import type { StrengthRating } from "@/data/strength-options";
 import { generateProgramOrder } from "@/lib/program-generator";
+import { ProjectSelector } from "@/components/ProjectSelector";
 import { LevelSelector } from "@/components/LevelSelector";
 import { ExerciseList } from "@/components/ExerciseList";
 import { HorseProfileForm } from "@/components/HorseProfileForm";
 import { ProgramPreview } from "@/components/ProgramPreview";
 import { ArenaEditor } from "@/components/ArenaEditor";
 import { MusicManager } from "@/components/MusicManager";
-import type { ArenaPath } from "@/components/ArenaCanvas";
-
-const STEPS = ["level", "profile", "exercises", "preview", "arena", "music"] as const;
-type Step = (typeof STEPS)[number];
-
-const STEP_LABELS: Record<Step, string> = {
-  level: "Niveau",
-  profile: "Hest",
-  exercises: "Styrker",
-  preview: "Program",
-  arena: "Bane",
-  music: "Musik",
-};
 
 export default function Home() {
-  const [step, setStep] = useState<Step>("level");
-  const [selectedLevel, setSelectedLevel] = useState<KurLevel | null>(null);
-  const [exerciseRatings, setExerciseRatings] = useState<Record<number, StrengthRating>>({});
-  const [horseName, setHorseName] = useState("");
-  const [temperament, setTemperament] = useState<"calm" | "neutral" | "energetic">("neutral");
-  const [arenaPaths, setArenaPaths] = useState<ArenaPath[]>([]);
+  const hydrated = useHydrated();
+
+  // Project store
+  const activeProjectId = useProjectStore((s) => s.activeProjectId);
+  const setActiveProject = useProjectStore((s) => s.setActiveProject);
+  const updateProjectMeta = useProjectStore((s) => s.updateProjectMeta);
+
+  // Wizard store — state
+  const selectedLevel = useWizardStore((s) => s.selectedLevel);
+  const horseName = useWizardStore((s) => s.horseName);
+  const temperament = useWizardStore((s) => s.temperament);
+  const exerciseRatings = useWizardStore((s) => s.exerciseRatings);
+  const programOrder = useWizardStore((s) => s.programOrder);
+  const arenaPaths = useWizardStore((s) => s.arenaPaths);
+  const step = useWizardStore((s) => s.currentStep);
+
+  // Wizard store — actions
+  const setLevel = useWizardStore((s) => s.setLevel);
+  const setHorseName = useWizardStore((s) => s.setHorseName);
+  const setTemperament = useWizardStore((s) => s.setTemperament);
+  const setExerciseRating = useWizardStore((s) => s.setExerciseRating);
+  const setProgramOrder = useWizardStore((s) => s.setProgramOrder);
+  const setArenaPaths = useWizardStore((s) => s.setArenaPaths);
+  const setStep = useWizardStore((s) => s.setStep);
+  const loadProject = useWizardStore((s) => s.loadProject);
+  const saveCurrentProject = useWizardStore((s) => s.saveCurrentProject);
 
   const stepIndex = STEPS.indexOf(step);
-  const programOrder = selectedLevel
+
+  // Derived program order
+  const computedProgramOrder = selectedLevel
     ? generateProgramOrder(selectedLevel, exerciseRatings, temperament)
     : [];
 
+  // Sync derived programOrder into store for persistence
+  const prevOrderRef = useRef<string>("");
+  useEffect(() => {
+    if (computedProgramOrder.length === 0) return;
+    const key = computedProgramOrder.map((e) => e.id).join(",");
+    if (key !== prevOrderRef.current) {
+      prevOrderRef.current = key;
+      setProgramOrder(computedProgramOrder.map((e) => e.id));
+    }
+  }, [computedProgramOrder, setProgramOrder]);
+
+  // Auto-save wizard state when it changes
+  useEffect(() => {
+    if (!activeProjectId) return;
+    saveCurrentProject(activeProjectId);
+    updateProjectMeta(activeProjectId, {
+      horseName,
+      levelId: selectedLevel?.id ?? "",
+      levelDisplayName: selectedLevel?.displayName ?? "",
+      currentStep: step,
+    });
+  }, [activeProjectId, selectedLevel, horseName, temperament, exerciseRatings, arenaPaths, step, saveCurrentProject, updateProjectMeta]);
+
+  // Hydration guard
+  if (!hydrated) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Kur Generator</h1>
+            <p className="text-sm text-gray-500">Dressur kur-programmering</p>
+          </div>
+        </header>
+        <div className="max-w-6xl mx-auto px-6 py-16 text-center text-gray-400">
+          Indlaeser...
+        </div>
+      </main>
+    );
+  }
+
+  // Project selection handlers
+  const handleProjectSelected = (id: string) => {
+    setActiveProject(id);
+    loadProject(id);
+  };
+
+  const handleStartForfra = () => {
+    if (!activeProjectId) return;
+    if (
+      window.confirm(
+        "Er du sikker på at du vil starte forfra? Dit projekt bliver slettet.",
+      )
+    ) {
+      useProjectStore.getState().deleteProject(activeProjectId);
+      useWizardStore.getState().resetToDefaults();
+    }
+  };
+
+  const handleBackToProjects = () => {
+    if (activeProjectId) {
+      saveCurrentProject(activeProjectId);
+    }
+    setActiveProject(null);
+  };
+
+  // No active project — show project selector
+  if (!activeProjectId) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Kur Generator</h1>
+            <p className="text-sm text-gray-500">Dressur kur-programmering</p>
+          </div>
+        </header>
+        <div className="max-w-6xl mx-auto px-6">
+          <ProjectSelector onProjectSelected={handleProjectSelected} />
+        </div>
+      </main>
+    );
+  }
+
+  // Active project — wizard view
   return (
     <main className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Kür Generator</h1>
-          <p className="text-sm text-gray-500">Dressur kür-programmering</p>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-900">Kur Generator</h1>
+            <span className="text-sm text-gray-500">
+              — {horseName || "Nyt projekt"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBackToProjects}
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Tilbage til projekter
+            </button>
+            <button
+              onClick={handleStartForfra}
+              className="text-sm text-red-500 hover:text-red-700"
+            >
+              Start forfra
+            </button>
+          </div>
         </div>
       </header>
 
@@ -56,7 +170,11 @@ export default function Home() {
                 if (i === 0 || selectedLevel) setStep(s);
               }}
               className={`flex-1 h-2 rounded-full transition-colors ${
-                i === stepIndex ? "bg-blue-600" : i < stepIndex ? "bg-blue-300" : "bg-gray-200"
+                i === stepIndex
+                  ? "bg-blue-600"
+                  : i < stepIndex
+                    ? "bg-blue-300"
+                    : "bg-gray-200"
               }`}
             />
           ))}
@@ -73,8 +191,7 @@ export default function Home() {
           <LevelSelector
             levels={KUR_LEVELS}
             onSelect={(level) => {
-              setSelectedLevel(level);
-              setExerciseRatings({});
+              setLevel(level);
               setStep("profile");
             }}
           />
@@ -95,9 +212,7 @@ export default function Home() {
           <ExerciseList
             level={selectedLevel}
             ratings={exerciseRatings}
-            onRatingChange={(id, rating) =>
-              setExerciseRatings((prev) => ({ ...prev, [id]: rating }))
-            }
+            onRatingChange={(id, rating) => setExerciseRating(id, rating)}
             onNext={() => setStep("preview")}
             onBack={() => setStep("profile")}
           />
@@ -120,14 +235,14 @@ export default function Home() {
               Tegn dit program på banen
             </h2>
             <p className="text-gray-600 mb-6">
-              Tegn ruten for hver øvelse direkte på banen. Brug musen eller fingeren til at tegne.
-              Øvelserne avancerer automatisk.
+              Tegn ruten for hver øvelse direkte på banen. Brug musen eller
+              fingeren til at tegne. Øvelserne avancerer automatisk.
             </p>
 
             <ArenaEditor
               level={selectedLevel}
               ratings={exerciseRatings}
-              programOrder={programOrder}
+              programOrder={computedProgramOrder}
               onPathsChange={setArenaPaths}
             />
 
@@ -151,7 +266,7 @@ export default function Home() {
         {step === "music" && selectedLevel && (
           <MusicManager
             level={selectedLevel}
-            programOrder={programOrder}
+            programOrder={computedProgramOrder}
             onBack={() => setStep("arena")}
           />
         )}
