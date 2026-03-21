@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useWizardStore } from "@/lib/stores/wizard-store";
 import { DEFAULT_PROJECT_DATA } from "@/lib/types/project";
+import { KUR_LEVELS } from "@/data/kur-levels";
 import {
   saveProjectData,
   loadProjectData,
@@ -64,14 +65,7 @@ describe("wizard-store", () => {
       exerciseRatings: { 1: "strength", 2: "weakness" },
       programOrder: [1, 2],
     });
-    const mockLevel = {
-      id: "LA",
-      name: "LA",
-      description: "Let A",
-      exercises: [],
-      allowedGaits: ["skridt" as const, "trav" as const, "galop" as const],
-      forbiddenExercises: [],
-    };
+    const mockLevel = KUR_LEVELS[0];
     useWizardStore.getState().setLevel(mockLevel);
     const state = useWizardStore.getState();
     expect(state.selectedLevel).toEqual(mockLevel);
