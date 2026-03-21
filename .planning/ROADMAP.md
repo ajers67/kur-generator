@@ -1,10 +1,10 @@
-# Roadmap: FreestyleMaker (Intelligent Kür-Designer)
+# Roadmap: FreestyleMaker (Intelligent Kur-Designer)
 
 ## Overview
 
-FreestyleMaker pivoterer fra et simpelt planlægningsværktøj til en intelligent kür-designer. Systemet genererer komplette freestyle-programmer med ruter og musik baseret på koreografi-principper og hestens styrker/svagheder. Brugeren kan tilpasse alt, og systemet validerer reglerne løbende.
+FreestyleMaker pivoterer fra et simpelt planlaegningsvaerktoj til en intelligent kur-designer. Systemet genererer komplette freestyle-programmer med ruter og musik baseret pa koreografi-principper og hestens styrker/svagheder. Brugeren kan tilpasse alt, og systemet validerer reglerne lobende.
 
-Koreografi-principper er dokumenteret i `.planning/CHOREOGRAPHY-RULES.md` — den autoritative kilde for programgenerering.
+Koreografi-principper er dokumenteret i `.planning/CHOREOGRAPHY-RULES.md` -- den autoritative kilde for programgenerering.
 
 ## Phases
 
@@ -12,7 +12,7 @@ Koreografi-principper er dokumenteret i `.planning/CHOREOGRAPHY-RULES.md` — de
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [x] **Phase 1: Code Cleanup** - Deduplicate program generation and remove dead code ✓ (2026-03-20)
+- [x] **Phase 1: Code Cleanup** - Deduplicate program generation and remove dead code
 - [ ] **Phase 2: Wizard Persistence** - Save wizard state so work survives page refresh
 - [ ] **Phase 3: Intelligent Program Generator** - Rebuild program ordering based on choreography principles
 - [ ] **Phase 4: Rule Validation Engine** - Real-time validation of FEI/DRF rules
@@ -41,7 +41,12 @@ Plans:
   2. Arena data survives page refresh
   3. Explicit "Start forfra" clears all saved state
   4. Clean first-load behavior (no hydration errors)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Install zustand, create types, stores, and persistence helpers
+- [ ] 02-02-PLAN.md — Create project selector UI and refactor page.tsx to use stores
+- [ ] 02-03-PLAN.md — Install vitest and write persistence tests
 
 ### Phase 3: Intelligent Program Generator
 **Goal**: System generates exercise ordering based on real choreography principles from CHOREOGRAPHY-RULES.md
@@ -52,7 +57,7 @@ Plans:
   1. Generated program places strength-rated exercises in prominent positions (toward C, diagonals)
   2. Weakness-rated exercises are placed in less visible positions (corners, short sides)
   3. High-coefficient exercises get better placement than low-coefficient
-  4. Program follows musical arc (calm start → build → climax → finish)
+  4. Program follows musical arc (calm start -> build -> climax -> finish)
   5. Same input produces varied results across multiple generations
   6. Entry always first, halt/salute always last, symmetry maintained
 **Plans**: TBD
@@ -107,7 +112,7 @@ Plans:
 **Plans**: TBD
 
 ### Phase 8: Mix Pipeline & Music Persistence
-**Goal**: Combine gait tracks into one downloadable kür file, persist everything
+**Goal**: Combine gait tracks into one downloadable kur file, persist everything
 **Depends on**: Phase 7
 **Requirements**: MIX-01, MIX-02, MIX-03, PERS-02
 **Success Criteria**:
@@ -120,12 +125,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Code Cleanup | 2/2 | Complete | 2026-03-20 |
-| 2. Wizard Persistence | 0/? | Not started | - |
+| 2. Wizard Persistence | 0/3 | Not started | - |
 | 3. Intelligent Program Generator | 0/? | Not started | - |
 | 4. Rule Validation Engine | 0/? | Not started | - |
 | 5. Auto-generated Arena Routes | 0/? | Not started | - |
