@@ -13,7 +13,7 @@ Koreografi-principper er dokumenteret i `.planning/CHOREOGRAPHY-RULES.md` -- den
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Code Cleanup** - Deduplicate program generation and remove dead code
-- [ ] **Phase 2: Wizard Persistence** - Save wizard state so work survives page refresh
+- [x] **Phase 2: Wizard Persistence** - Save wizard state so work survives page refresh (completed 2026-03-21)
 - [ ] **Phase 3: Intelligent Program Generator** - Rebuild program ordering based on choreography principles
 - [ ] **Phase 4: Rule Validation Engine** - Real-time validation of FEI/DRF rules
 - [ ] **Phase 5: Auto-generated Arena Routes** - Generate visual routes in the arena for each exercise
@@ -45,7 +45,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Install zustand, create types, stores, and persistence helpers
-- [ ] 02-02-PLAN.md — Create project selector UI and refactor page.tsx to use stores
+- [x] 02-02-PLAN.md — Create project selector UI and refactor page.tsx to use stores
 - [x] 02-03-PLAN.md — Install vitest and write persistence tests
 
 ### Phase 3: Intelligent Program Generator
@@ -130,7 +130,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Code Cleanup | 2/2 | Complete | 2026-03-20 |
-| 2. Wizard Persistence | 0/3 | Not started | - |
+| 2. Wizard Persistence | 3/3 | Complete   | 2026-03-21 |
 | 3. Intelligent Program Generator | 0/? | Not started | - |
 | 4. Rule Validation Engine | 0/? | Not started | - |
 | 5. Auto-generated Arena Routes | 0/? | Not started | - |
