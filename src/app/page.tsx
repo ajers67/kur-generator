@@ -13,7 +13,7 @@ import { LevelSelector } from "@/components/LevelSelector";
 import { ExerciseList } from "@/components/ExerciseList";
 import { HorseProfileForm } from "@/components/HorseProfileForm";
 import { ProgramPreview } from "@/components/ProgramPreview";
-import { ArenaEditor } from "@/components/ArenaEditor";
+import { ArenaRouteView } from "@/components/ArenaRouteView";
 import { MusicManager } from "@/components/MusicManager";
 
 export default function Home() {
@@ -232,18 +232,17 @@ export default function Home() {
         {step === "arena" && selectedLevel && (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Tegn dit program på banen
+              Ruter i banen
             </h2>
             <p className="text-gray-600 mb-6">
-              Tegn ruten for hver øvelse direkte på banen. Brug musen eller
-              fingeren til at tegne. Øvelserne avancerer automatisk.
+              Ruterne er automatisk genereret baseret på øvelsestyper og
+              styrker/svagheder. Klik &apos;Gener nye ruter&apos; for et nyt forslag.
             </p>
 
-            <ArenaEditor
-              level={selectedLevel}
-              ratings={exerciseRatings}
+            <ArenaRouteView
               programOrder={computedProgramOrder}
-              onPathsChange={setArenaPaths}
+              ratings={exerciseRatings}
+              onRoutesGenerated={setArenaPaths}
             />
 
             <div className="flex justify-between mt-6">
