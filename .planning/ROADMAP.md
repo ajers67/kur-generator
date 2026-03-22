@@ -114,7 +114,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — Add customProgramOrder to state and drag-and-drop reordering to ProgramPreview
-- [ ] 06-02-PLAN.md — Add route selection and drag-move interaction to ArenaCanvas
+- [x] 06-02-PLAN.md — Add route selection and drag-move interaction to ArenaCanvas
 
 ### Phase 7: Lyria Music Generation
 **Goal**: Riders can generate custom music for each gait with correct BPM, preview it, and iterate

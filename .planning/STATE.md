@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-03-22T21:11:07.658Z"
+stopped_at: Completed 06-02-PLAN.md (checkpoint pending)
+last_updated: "2026-03-22T21:16:26.856Z"
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -58,6 +58,7 @@ Plan: 2 of 2
 | Phase 05 P01 | 3min | 1 tasks | 2 files |
 | Phase 05 P02 | 3min | 2 tasks | 3 files |
 | Phase 06 P01 | 4min | 2 tasks | 4 files |
+| Phase 06 P02 | 3min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 05]: ArenaCanvas dual-mode via optional props for interactive/read-only rendering
 - [Phase 06]: HTML5 native DnD over library for simple list reordering
 - [Phase 06]: Entry/finale positions locked in drag-and-drop (index 0 and last)
+- [Phase 06]: Point-to-segment distance hit testing for route selection (0.04 threshold)
+- [Phase 06]: Dual-mode canvas: route-interactive mutually exclusive with draw-interactive
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T21:11:07.650Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-03-22T21:16:26.848Z
+Stopped at: Completed 06-02-PLAN.md (checkpoint pending)
 Resume file: None
