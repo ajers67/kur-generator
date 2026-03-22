@@ -129,7 +129,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — MusicProvider abstraction, Lyria server proxy, and PCM-to-WAV conversion
+- [x] 07-01-PLAN.md — MusicProvider abstraction, Lyria server proxy, and PCM-to-WAV conversion
 - [ ] 07-02-PLAN.md — Rewrite MusicManager UI for AI generation with playback and controls
 
 ### Phase 8: Mix Pipeline & Music Persistence

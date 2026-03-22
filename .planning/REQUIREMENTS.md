@@ -38,8 +38,8 @@
 
 ### 5. Music Generation
 
-- [ ] **MUS-01**: Bruger kan generere musik per gangart via Google Lyria med BPM tilpasset gangarten (skridt ~60-72, trav ~140-160, galop ~100-120)
-- [ ] **MUS-02**: Bruger kan angive genre/mood/stil via tekstprompt per gangart
+- [x] **MUS-01**: Bruger kan generere musik per gangart via Google Lyria med BPM tilpasset gangarten (skridt ~60-72, trav ~140-160, galop ~100-120)
+- [x] **MUS-02**: Bruger kan angive genre/mood/stil via tekstprompt per gangart
 - [ ] **MUS-03**: Bruger kan forhøre genereret musik direkte i browseren
 - [ ] **MUS-04**: Bruger kan re-generere musik for en gangart
 - [ ] **MUS-05**: Progress/loading UI mens musik genereres
@@ -118,8 +118,8 @@
 | EDIT-02 | Phase 6 | Complete |
 | EDIT-03 | Phase 6 | Complete |
 | EDIT-04 | Phase 6 | Complete |
-| MUS-01 | Phase 7 | Pending |
-| MUS-02 | Phase 7 | Pending |
+| MUS-01 | Phase 7 | Complete |
+| MUS-02 | Phase 7 | Complete |
 | MUS-03 | Phase 7 | Pending |
 | MUS-04 | Phase 7 | Pending |
 | MUS-05 | Phase 7 | Pending |
