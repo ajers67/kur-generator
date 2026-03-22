@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useHydrated } from "@/lib/use-hydration";
 import { useProjectStore } from "@/lib/stores/project-store";
 import { useWizardStore } from "@/lib/stores/wizard-store";
@@ -46,10 +46,24 @@ export default function Home() {
 
   const stepIndex = STEPS.indexOf(step);
 
-  // Derived program order
-  const computedProgramOrder = selectedLevel
-    ? generateProgramOrder(selectedLevel, exerciseRatings, temperament)
-    : [];
+  // Derived program order — stable seed from level+ratings+temperament to prevent infinite re-renders
+  const programSeed = useMemo(() => {
+    if (!selectedLevel) return 0;
+    const ratingStr = Object.entries(exerciseRatings).sort(([a], [b]) => Number(a) - Number(b)).map(([k, v]) => `${k}:${v}`).join(",");
+    let hash = 0;
+    const str = `${selectedLevel.id}-${temperament}-${ratingStr}`;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+    }
+    return hash;
+  }, [selectedLevel, exerciseRatings, temperament]);
+
+  const computedProgramOrder = useMemo(
+    () => selectedLevel
+      ? generateProgramOrder(selectedLevel, exerciseRatings, temperament, { seed: programSeed })
+      : [],
+    [selectedLevel, exerciseRatings, temperament, programSeed]
+  );
 
   // Sync derived programOrder into store for persistence
   const prevOrderRef = useRef<string>("");
