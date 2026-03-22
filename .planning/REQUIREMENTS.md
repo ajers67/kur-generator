@@ -23,10 +23,10 @@
 
 ### 3. Bruger-tilpasning
 
-- [ ] **EDIT-01**: Bruger kan flytte øvelser op/ned i rækkefølgen via drag-and-drop
+- [x] **EDIT-01**: Bruger kan flytte øvelser op/ned i rækkefølgen via drag-and-drop
 - [ ] **EDIT-02**: Bruger kan justere/flytte ruter i arena-viewet
-- [ ] **EDIT-03**: Bruger kan re-generere hele programmet med ét klik (nyt forslag)
-- [ ] **EDIT-04**: Ændringer reflekteres real-time i både program-liste og arena-visning
+- [x] **EDIT-03**: Bruger kan re-generere hele programmet med ét klik (nyt forslag)
+- [x] **EDIT-04**: Ændringer reflekteres real-time i både program-liste og arena-visning
 
 ### 4. Regelvalidering
 
@@ -114,10 +114,10 @@
 | ROUTE-02 | Phase 5 | Complete |
 | ROUTE-03 | Phase 5 | Complete |
 | ROUTE-04 | Phase 5 | Complete |
-| EDIT-01 | Phase 6 | Pending |
+| EDIT-01 | Phase 6 | Complete |
 | EDIT-02 | Phase 6 | Pending |
-| EDIT-03 | Phase 6 | Pending |
-| EDIT-04 | Phase 6 | Pending |
+| EDIT-03 | Phase 6 | Complete |
+| EDIT-04 | Phase 6 | Complete |
 | MUS-01 | Phase 7 | Pending |
 | MUS-02 | Phase 7 | Pending |
 | MUS-03 | Phase 7 | Pending |

@@ -113,7 +113,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Add customProgramOrder to state and drag-and-drop reordering to ProgramPreview
+- [x] 06-01-PLAN.md — Add customProgramOrder to state and drag-and-drop reordering to ProgramPreview
 - [ ] 06-02-PLAN.md — Add route selection and drag-move interaction to ArenaCanvas
 
 ### Phase 7: Lyria Music Generation

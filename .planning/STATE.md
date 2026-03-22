@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-02-PLAN.md (Tasks 1-2, awaiting checkpoint)
-last_updated: "2026-03-22T20:40:00.518Z"
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-22T21:11:07.658Z"
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 13
+  completed_plans: 12
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** Rytteren kan ga fra valgt niveau til et komplet kur-program med tilpasset musik -- alt i en samlet arbejdsgang.
-**Current focus:** Phase 05 — auto-generated-arena-routes
+**Current focus:** Phase 06 — user-customization
 
 ## Current Position
 
-Phase: 05 (auto-generated-arena-routes) — EXECUTING
+Phase: 06 (user-customization) — EXECUTING
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -57,6 +57,7 @@ Plan: 2 of 2
 | Phase 04 P02 | 3min | 2 tasks | 2 files |
 | Phase 05 P01 | 3min | 1 tasks | 2 files |
 | Phase 05 P02 | 3min | 2 tasks | 3 files |
+| Phase 06 P01 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Duplicated ARENA_LETTERS coords in route-generator.ts to decouple domain logic from UI component
 - [Phase 05]: Route templates organized by StrengthRating with multiple variants per category for randomized selection
 - [Phase 05]: ArenaCanvas dual-mode via optional props for interactive/read-only rendering
+- [Phase 06]: HTML5 native DnD over library for simple list reordering
+- [Phase 06]: Entry/finale positions locked in drag-and-drop (index 0 and last)
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T20:40:00.510Z
-Stopped at: Completed 05-02-PLAN.md (Tasks 1-2, awaiting checkpoint)
+Last session: 2026-03-22T21:11:07.650Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
