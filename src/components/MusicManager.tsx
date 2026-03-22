@@ -1,24 +1,48 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { KurLevel, Exercise, Gait } from "@/data/kur-levels";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
-import { detectBPM, bpmMatchesGait } from "@/lib/bpm-detect";
-import {
-  generateMixTimeline,
-  renderMix,
-  audioBufferToWav,
-} from "@/lib/audio-mixer";
-import type { MixTrack, MixSegment } from "@/lib/audio-mixer";
+import { createMusicProvider } from "@/lib/music-provider";
 
-interface UploadedTrack {
-  file: File;
-  name: string;
-  bpm: number | null;
-  detecting: boolean;
-  assignedGait: string;
-  audioBuffer: AudioBuffer | null;
-  error?: string;
+// Genre presets (D-10)
+const MUSIC_GENRES = ["Klassisk", "Pop/Rock", "Filmmusik", "Jazz", "Elektronisk"];
+
+// Danish prompt templates per gait (D-12)
+const GAIT_PROMPT_TEMPLATES: Record<string, string> = {
+  skridt: "roligt og majestaetisk skridt-tempo",
+  trav: "energisk og rytmisk trav-tempo",
+  galop: "kraftfuldt og fremadrettet galop-tempo",
+  passage: "ophoejet og svaevende passage-tempo",
+  piaffe: "samlet og kraftfuldt piaffe-tempo",
+};
+
+// BPM midpoints from bpm-detect.ts ranges (D-07)
+const GAIT_BPM_TARGETS: Record<string, number> = {
+  skridt: 57,
+  trav: 81,
+  galop: 102,
+  passage: 62,
+  piaffe: 62,
+};
+
+// Track duration in seconds (Phase 8 can loop)
+const TRACK_DURATION_SEC = 45;
+
+function buildDefaultPrompt(genre: string, gait: string, bpm: number): string {
+  const template = GAIT_PROMPT_TEMPLATES[gait] || gait;
+  return `${genre} musik, ${template}, ${bpm} BPM`;
+}
+
+interface GaitTrack {
+  gait: string;
+  prompt: string;
+  promptEdited: boolean;
+  bpm: number;
+  audioBlob: Blob | null;
+  audioUrl: string | null;
+  generating: boolean;
+  error: string | null;
 }
 
 interface Props {
@@ -28,374 +52,369 @@ interface Props {
 }
 
 export function MusicManager({ level, programOrder, onBack }: Props) {
-  const [tracks, setTracks] = useState<UploadedTrack[]>([]);
-  const [mixing, setMixing] = useState(false);
-  const [mixReady, setMixReady] = useState(false);
-  const [mixBlob, setMixBlob] = useState<Blob | null>(null);
-  const [mixSegments, setMixSegments] = useState<MixSegment[]>([]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [genre, setGenre] = useState("Klassisk");
+  const [tracks, setTracks] = useState<GaitTrack[]>([]);
+  const [generatingAll, setGeneratingAll] = useState(false);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [playbackProgress, setPlaybackProgress] = useState<Record<number, number>>({});
+  const [playbackDuration, setPlaybackDuration] = useState<Record<number, number>>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Get unique gaits from program
+  // Get unique gaits from program (exclude overgang)
   const gaits = [...new Set(programOrder.map((e) => e.gait).filter((g) => g !== "overgang"))];
 
-  const handleFileUpload = useCallback(async (files: FileList | null) => {
-    if (!files) return;
-
-    for (const file of Array.from(files)) {
-      if (!file.type.startsWith("audio/")) continue;
-
-      const newTrack: UploadedTrack = {
-        file,
-        name: file.name.replace(/\.[^.]+$/, ""),
-        bpm: null,
-        detecting: true,
-        assignedGait: gaits[0] || "trav",
-        audioBuffer: null,
-      };
-
-      setTracks((prev) => [...prev, newTrack]);
-
-      try {
-        // Decode audio
-        const arrayBuffer = await file.arrayBuffer();
-        const audioContext = new AudioContext();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        await audioContext.close();
-
-        // Detect BPM
-        let bpm: number | null = null;
-        try {
-          bpm = await detectBPM(file);
-        } catch {
-          // BPM detection can fail on some files
-        }
-
-        setTracks((prev) =>
-          prev.map((t, i) =>
-            t.file === file
-              ? { ...t, bpm, detecting: false, audioBuffer }
-              : t
-          )
-        );
-      } catch (err) {
-        setTracks((prev) =>
-          prev.map((t) =>
-            t.file === file
-              ? { ...t, detecting: false, error: "Kunne ikke læse filen" }
-              : t
-          )
-        );
-      }
-    }
-  }, [tracks.length, gaits]);
-
-  const removeTrack = (index: number) => {
-    setTracks((prev) => prev.filter((_, i) => i !== index));
-    setMixReady(false);
-  };
-
-  const updateGait = (index: number, gait: string) => {
-    setTracks((prev) =>
-      prev.map((t, i) => (i === index ? { ...t, assignedGait: gait } : t))
+  // Initialize tracks when gaits change
+  useEffect(() => {
+    setTracks(
+      gaits.map((gait) => ({
+        gait,
+        prompt: buildDefaultPrompt(genre, gait, GAIT_BPM_TARGETS[gait] || 80),
+        promptEdited: false,
+        bpm: GAIT_BPM_TARGETS[gait] || 80,
+        audioBlob: null,
+        audioUrl: null,
+        generating: false,
+        error: null,
+      }))
     );
-    setMixReady(false);
-  };
+    // Only reinitialize when programOrder changes (gaits derived from it)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [programOrder]);
 
-  const handleMix = async () => {
-    const validTracks = tracks.filter((t) => t.audioBuffer);
-    if (validTracks.length === 0) return;
+  // Update prompts when genre changes (only for non-edited prompts)
+  useEffect(() => {
+    setTracks((prev) =>
+      prev.map((t) =>
+        t.promptEdited
+          ? t
+          : { ...t, prompt: buildDefaultPrompt(genre, t.gait, t.bpm) }
+      )
+    );
+  }, [genre]);
 
-    setMixing(true);
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      tracks.forEach((t) => {
+        if (t.audioUrl) URL.revokeObjectURL(t.audioUrl);
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleGenerate = useCallback(async (gaitIndex: number) => {
+    setTracks((prev) =>
+      prev.map((t, i) =>
+        i === gaitIndex ? { ...t, generating: true, error: null } : t
+      )
+    );
 
     try {
-      const mixTracks: MixTrack[] = validTracks.map((t) => ({
-        file: t.file,
-        audioBuffer: t.audioBuffer!,
-        bpm: t.bpm || 100,
-        assignedGait: t.assignedGait,
-      }));
+      const provider = createMusicProvider();
+      const track = tracks[gaitIndex];
+      if (!track) return;
 
-      // Parse total duration from level
-      const [minStr] = level.timeMin.split(":");
-      const [maxStr, maxSec] = level.timeMax.split(":");
-      const totalSec = (parseInt(maxStr) * 60 + parseInt(maxSec || "0"));
+      const arrayBuffer = await provider.generateTrack(
+        track.prompt,
+        track.bpm,
+        TRACK_DURATION_SEC
+      );
 
-      const exercises = programOrder
-        .filter((e) => e.gait !== "overgang")
-        .map((e) => ({ gait: e.gait, name: e.name }));
+      const blob = new Blob([arrayBuffer], { type: "audio/wav" });
+      const url = URL.createObjectURL(blob);
 
-      const segments = generateMixTimeline(mixTracks, exercises, totalSec);
-      setMixSegments(segments);
-
-      const mixedBuffer = await renderMix(mixTracks, segments, totalSec);
-      const wavBlob = audioBufferToWav(mixedBuffer);
-
-      setMixBlob(wavBlob);
-      setMixReady(true);
-
-      // Create preview URL
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      const url = URL.createObjectURL(wavBlob);
-      setPreviewUrl(url);
+      setTracks((prev) =>
+        prev.map((t, i) => {
+          if (i !== gaitIndex) return t;
+          // Revoke old URL to prevent memory leak
+          if (t.audioUrl) URL.revokeObjectURL(t.audioUrl);
+          return {
+            ...t,
+            audioBlob: blob,
+            audioUrl: url,
+            generating: false,
+            error: null,
+          };
+        })
+      );
     } catch (err) {
-      console.error("Mix failed:", err);
-    } finally {
-      setMixing(false);
+      const message = err instanceof Error ? err.message : "Ukendt fejl ved generering";
+      setTracks((prev) =>
+        prev.map((t, i) =>
+          i === gaitIndex
+            ? { ...t, generating: false, error: message }
+            : t
+        )
+      );
     }
+  }, [tracks]);
+
+  const handleRegenerate = useCallback(async (gaitIndex: number) => {
+    const track = tracks[gaitIndex];
+    if (track?.audioBlob) {
+      const confirmed = window.confirm("Erstat nuvaerende musik?");
+      if (!confirmed) return;
+    }
+    // Stop playback if this track is playing
+    if (playingIndex === gaitIndex) {
+      audioRef.current?.pause();
+      setPlayingIndex(null);
+    }
+    await handleGenerate(gaitIndex);
+  }, [tracks, playingIndex, handleGenerate]);
+
+  const handleGenerateAll = useCallback(async () => {
+    setGeneratingAll(true);
+    for (let i = 0; i < tracks.length; i++) {
+      await handleGenerate(i);
+    }
+    setGeneratingAll(false);
+  }, [tracks.length, handleGenerate]);
+
+  const handlePromptChange = useCallback((gaitIndex: number, value: string) => {
+    setTracks((prev) =>
+      prev.map((t, i) =>
+        i === gaitIndex ? { ...t, prompt: value, promptEdited: true } : t
+      )
+    );
+  }, []);
+
+  const handlePlay = useCallback((gaitIndex: number) => {
+    const track = tracks[gaitIndex];
+    if (!track?.audioUrl) return;
+
+    // Pause current if different track
+    if (audioRef.current && playingIndex !== null && playingIndex !== gaitIndex) {
+      audioRef.current.pause();
+    }
+
+    if (playingIndex === gaitIndex && audioRef.current) {
+      // Toggle pause/play
+      if (audioRef.current.paused) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+        setPlayingIndex(null);
+        return;
+      }
+    } else {
+      // Play new track
+      const audio = new Audio(track.audioUrl);
+      audioRef.current = audio;
+
+      audio.ontimeupdate = () => {
+        setPlaybackProgress((prev) => ({ ...prev, [gaitIndex]: audio.currentTime }));
+      };
+      audio.onloadedmetadata = () => {
+        setPlaybackDuration((prev) => ({ ...prev, [gaitIndex]: audio.duration }));
+      };
+      audio.onended = () => {
+        setPlayingIndex(null);
+        setPlaybackProgress((prev) => ({ ...prev, [gaitIndex]: 0 }));
+      };
+
+      audio.play();
+    }
+    setPlayingIndex(gaitIndex);
+  }, [tracks, playingIndex]);
+
+  const handleVolumeChange = useCallback((value: number) => {
+    if (audioRef.current) {
+      audioRef.current.volume = value;
+    }
+  }, []);
+
+  const formatTime = (seconds: number): string => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const downloadMix = () => {
-    if (!mixBlob) return;
-    const url = URL.createObjectURL(mixBlob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `freestyle-mix.wav`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Check which gaits have tracks assigned
-  const gaitCoverage = gaits.map((gait) => ({
-    gait,
-    covered: tracks.some((t) => t.assignedGait === gait && t.audioBuffer),
-  }));
+  const anyGenerating = tracks.some((t) => t.generating);
 
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Musik</h2>
       <p className="text-gray-600 mb-6">
-        Upload musik til hver gangart. Systemet detecter automatisk BPM og mixer
-        musikken baseret på dit program.
+        Generer musik til hver gangart med AI. Vaelg genre og tilpas prompts.
       </p>
 
-      {/* Gait coverage overview */}
-      <div className="flex gap-2 mb-6">
-        {gaitCoverage.map(({ gait, covered }) => (
+      {/* Genre selector (D-10) */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Genre
+        </label>
+        <select
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          {MUSIC_GENRES.map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Generate all button (D-23) */}
+      <div className="mb-6">
+        <button
+          onClick={handleGenerateAll}
+          disabled={anyGenerating || generatingAll}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+        >
+          {generatingAll ? "Genererer al musik..." : "Generer al musik"}
+        </button>
+      </div>
+
+      {/* Per-gait cards (D-25) */}
+      <div className="space-y-4 mb-6">
+        {tracks.map((track, i) => (
           <div
-            key={gait}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm ${
-              covered
-                ? "bg-green-100 text-green-800"
-                : "bg-gray-100 text-gray-500"
-            }`}
+            key={track.gait}
+            className="bg-white rounded-xl border border-gray-200 p-5"
           >
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: GAIT_COLORS[gait as Gait] }}
-            />
-            {GAIT_LABELS[gait as Gait]}
-            {covered ? " \u2713" : " mangler"}
+            {/* Header: gait name + BPM badge */}
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className="w-3.5 h-3.5 rounded-full"
+                style={{ backgroundColor: GAIT_COLORS[track.gait as Gait] }}
+              />
+              <h3 className="font-semibold text-gray-900">
+                {GAIT_LABELS[track.gait as Gait]}
+              </h3>
+              <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                {track.bpm} BPM
+              </span>
+            </div>
+
+            {/* Prompt textarea (D-11, D-13) */}
+            <div className="mb-3">
+              <label className="block text-xs text-gray-500 mb-1">
+                Prompt
+              </label>
+              <textarea
+                value={track.prompt}
+                onChange={(e) => handlePromptChange(i, e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            {/* Generate / Regenerate buttons */}
+            <div className="flex items-center gap-3 mb-3">
+              {!track.audioBlob ? (
+                <button
+                  onClick={() => handleGenerate(i)}
+                  disabled={track.generating || generatingAll}
+                  className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  Generer
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleRegenerate(i)}
+                  disabled={track.generating || generatingAll}
+                  className="px-4 py-1.5 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors"
+                >
+                  Generer igen
+                </button>
+              )}
+            </div>
+
+            {/* Loading state (D-20, D-21) */}
+            {track.generating && (
+              <div className="flex items-center gap-3 py-3">
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm text-gray-600">
+                  Genererer musik... (~10-15 sek)
+                </span>
+              </div>
+            )}
+
+            {/* Error state (D-22) */}
+            {track.error && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-700">{track.error}</p>
+                <button
+                  onClick={() => handleGenerate(i)}
+                  className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                >
+                  Proev igen
+                </button>
+              </div>
+            )}
+
+            {/* Audio player (D-14, D-15, D-16) */}
+            {track.audioUrl && !track.generating && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  {/* Play/Pause button */}
+                  <button
+                    onClick={() => handlePlay(i)}
+                    className="w-9 h-9 flex items-center justify-center bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors flex-shrink-0"
+                  >
+                    {playingIndex === i ? (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                        <rect x="2" y="1" width="4" height="12" rx="1" />
+                        <rect x="8" y="1" width="4" height="12" rx="1" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                        <path d="M2 1.5v11l10-5.5z" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Progress bar (D-15) */}
+                  <div className="flex-1">
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500 rounded-full transition-all duration-200"
+                        style={{
+                          width: `${playbackDuration[i] ? (playbackProgress[i] || 0) / playbackDuration[i] * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <span>{formatTime(playbackProgress[i] || 0)}</span>
+                      <span>{formatTime(playbackDuration[i] || 0)}</span>
+                    </div>
+                  </div>
+
+                  {/* Volume slider (D-16) */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" className="text-gray-400">
+                      <path d="M2 5.5h2l3-3v11l-3-3H2a1 1 0 01-1-1v-3a1 1 0 011-1z" strokeWidth="1.2" fill="currentColor" />
+                      <path d="M10 4.5c.7.7 1 1.6 1 2.5s-.3 1.8-1 2.5" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      defaultValue="1"
+                      onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                      className="w-20 h-1.5 accent-green-600"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Upload area */}
-      <div
-        onClick={() => fileInputRef.current?.click()}
-        className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors mb-6"
-      >
-        <p className="text-gray-600 font-medium">
-          Klik her eller træk filer hertil
-        </p>
-        <p className="text-sm text-gray-400 mt-1">MP3, WAV, OGG, M4A</p>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="audio/*"
-          className="hidden"
-          onChange={(e) => handleFileUpload(e.target.files)}
-        />
-      </div>
-
-      {/* Track list */}
-      {tracks.length > 0 && (
-        <div className="space-y-3 mb-6">
-          {tracks.map((track, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl border border-gray-200 p-4"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-900 truncate">
-                    {track.name}
-                  </h4>
-
-                  <div className="flex items-center gap-3 mt-2">
-                    {/* BPM */}
-                    <div className="text-sm">
-                      {track.detecting ? (
-                        <span className="text-gray-400">Analyserer BPM...</span>
-                      ) : track.bpm ? (
-                        <span className="font-mono font-bold text-gray-700">
-                          {track.bpm} BPM
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">BPM ukendt</span>
-                      )}
-                    </div>
-
-                    {/* BPM match indicator */}
-                    {track.bpm && !track.detecting && (
-                      (() => {
-                        const match = bpmMatchesGait(track.bpm, track.assignedGait);
-                        return match.match ? (
-                          <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                            Passer til {GAIT_LABELS[track.assignedGait as Gait]} ({match.ideal})
-                          </span>
-                        ) : (
-                          <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
-                            Passer måske ikke ({match.ideal} anbefalet)
-                          </span>
-                        );
-                      })()
-                    )}
-                  </div>
-
-                  {/* Gait selector */}
-                  <div className="flex gap-1.5 mt-3">
-                    {gaits.map((gait) => (
-                      <button
-                        key={gait}
-                        onClick={() => updateGait(i, gait)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                          track.assignedGait === gait
-                            ? "text-white"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
-                        style={
-                          track.assignedGait === gait
-                            ? { backgroundColor: GAIT_COLORS[gait as Gait] }
-                            : undefined
-                        }
-                      >
-                        {GAIT_LABELS[gait as Gait]}
-                      </button>
-                    ))}
-                  </div>
-
-                  {track.error && (
-                    <p className="text-sm text-red-600 mt-2">{track.error}</p>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => removeTrack(i)}
-                  className="text-gray-400 hover:text-red-600 text-lg"
-                >
-                  \u2715
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Mix button */}
-      {tracks.some((t) => t.audioBuffer) && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Auto-mix</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Mixer automatisk din musik baseret på programmet. Musikken crossfader
-            mellem numrene ved gangartsskift.
-          </p>
-
-          {/* Mix timeline preview */}
-          {mixSegments.length > 0 && (
-            <div className="mb-4">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                Mix-tidslinje
-              </h4>
-              <div className="flex rounded-lg overflow-hidden h-8">
-                {mixSegments.map((seg, i) => {
-                  const duration = seg.endTime - seg.startTime;
-                  const totalDur = mixSegments[mixSegments.length - 1]?.endTime || 1;
-                  const widthPct = (duration / totalDur) * 100;
-                  const track = tracks[seg.trackIndex];
-
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center justify-center text-xs text-white font-medium truncate px-1"
-                      style={{
-                        width: `${widthPct}%`,
-                        backgroundColor: GAIT_COLORS[seg.gait as Gait] || "#6b7280",
-                        opacity: 0.85,
-                      }}
-                      title={`${seg.exerciseName} (${Math.round(seg.startTime)}s - ${Math.round(seg.endTime)}s)`}
-                    >
-                      {GAIT_LABELS[seg.gait as Gait] || seg.gait}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>0:00</span>
-                <span>
-                  {Math.floor((mixSegments[mixSegments.length - 1]?.endTime || 0) / 60)}:
-                  {String(Math.round((mixSegments[mixSegments.length - 1]?.endTime || 0) % 60)).padStart(2, "0")}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleMix}
-              disabled={mixing}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-            >
-              {mixing ? "Mixer..." : mixReady ? "Mix igen" : "Generer mix"}
-            </button>
-
-            {mixReady && previewUrl && (
-              <>
-                <audio ref={audioRef} src={previewUrl} />
-                <button
-                  onClick={() => audioRef.current?.play()}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  Afspil preview
-                </button>
-                <button
-                  onClick={() => audioRef.current?.pause()}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-                >
-                  Stop
-                </button>
-                <button
-                  onClick={downloadMix}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                >
-                  Download WAV
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Disclaimer */}
-      <div className="mt-6 bg-gray-50 border border-gray-200 rounded-xl p-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
         <p className="text-xs text-gray-500">
-          Du er selv ansvarlig for at have de nødvendige rettigheder til den musik du uploader.
-          Vi anbefaler at licensere musik via{" "}
-          <a
-            href="https://music.clicknclear.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            ClicknClear
-          </a>{" "}
-          for brug til stævner.
+          Musik genereret med Google Lyria AI. Instrumentalmusik beregnet til dressur freestyle.
         </p>
       </div>
 
-      <div className="flex justify-between mt-6">
+      {/* Navigation */}
+      <div className="flex justify-between">
         <button
           onClick={onBack}
           className="px-4 py-2 text-gray-600 hover:text-gray-900"
