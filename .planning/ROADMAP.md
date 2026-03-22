@@ -103,17 +103,18 @@ Plans:
 **Goal**: Riders can customize the generated program to make it their own while staying within rules
 **Depends on**: Phase 5
 **Requirements**: EDIT-01, EDIT-02, EDIT-03, EDIT-04
+**Note**: EDIT-03 (regeneration) removed per business model decision — one program per purchase
 **Success Criteria**:
   1. User can drag exercises to reorder in program list
   2. User can adjust/move routes in arena view
-  3. User can regenerate entire program with one click
+  3. ~~User can regenerate entire program with one click~~ (REMOVED)
   4. All changes update both program list and arena view in real-time
   5. Rule validation runs after every edit
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — [To be planned]
-- [ ] 06-02-PLAN.md — [To be planned]
+- [ ] 06-01-PLAN.md — Add customProgramOrder to state and drag-and-drop reordering to ProgramPreview
+- [ ] 06-02-PLAN.md — Add route selection and drag-move interaction to ArenaCanvas
 
 ### Phase 7: Lyria Music Generation
 **Goal**: Riders can generate custom music for each gait with correct BPM, preview it, and iterate
@@ -158,6 +159,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. Intelligent Program Generator | 2/2 | Complete | 2026-03-22 |
 | 4. Rule Validation Engine | 2/2 | Complete | 2026-03-22 |
 | 5. Auto-generated Arena Routes | 0/2 | Not started | - |
-| 6. User Customization | 0/? | Not started | - |
+| 6. User Customization | 0/2 | Not started | - |
 | 7. Lyria Music Generation | 0/? | Not started | - |
 | 8. Mix Pipeline & Music Persistence | 0/? | Not started | - |
