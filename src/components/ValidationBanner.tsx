@@ -8,7 +8,7 @@ export function ValidationBanner({ results }: Props) {
   const errors = results.filter((r) => r.severity === "error");
   const warnings = results.filter((r) => r.severity === "warning");
 
-  if (results.length === 0) {
+  if (errors.length === 0) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
         <span className="text-green-600 text-lg">&#10003;</span>
