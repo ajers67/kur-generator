@@ -1,7 +1,12 @@
+"use client";
+
+import { useMemo } from "react";
 import type { KurLevel, Exercise } from "@/data/kur-levels";
 import type { StrengthRating } from "@/data/strength-options";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
 import { generateProgramOrder } from "@/lib/program-generator";
+import { validateProgram } from "@/lib/rule-validator";
+import { ValidationBanner } from "./ValidationBanner";
 
 interface Props {
   level: KurLevel;
@@ -14,6 +19,11 @@ interface Props {
 
 export function ProgramPreview({ level, ratings, horseName, temperament, onBack, onNext }: Props) {
   const program = generateProgramOrder(level, ratings, temperament);
+
+  const validationResults = useMemo(
+    () => validateProgram(level, program),
+    [level, program]
+  );
 
   const strengths = program.filter((e) => ratings[e.id] === "strength");
   const weaknesses = program.filter((e) => ratings[e.id] === "weakness");
@@ -31,6 +41,10 @@ export function ProgramPreview({ level, ratings, horseName, temperament, onBack,
         {strengths.length > 0 && ` ${strengths.length} styrker placeret prominent.`}
         {weaknesses.length > 0 && ` ${weaknesses.length} svagheder minimeret.`}
       </p>
+
+      <div className="mb-4">
+        <ValidationBanner results={validationResults} />
+      </div>
 
       {/* Program sequence */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
