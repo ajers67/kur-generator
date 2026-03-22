@@ -19,7 +19,7 @@
 - [x] **ROUTE-01**: System genererer ruter i 20x60 banen for hver øvelse baseret på øvelsestype (extensions på diagonaler, laterale langs banen, pirouetter ved centerlinjen osv.)
 - [x] **ROUTE-02**: Styrke-øvelser placeres i synlige zoner (mod C-enden, diagonaler) og svagheder i mindre synlige zoner (hjørner, kort side)
 - [x] **ROUTE-03**: Ruter forbindes automatisk med overgangslinjer mellem øvelser
-- [ ] **ROUTE-04**: Arena-visning viser alle ruter farvekodet per gangart med øvelses-labels
+- [x] **ROUTE-04**: Arena-visning viser alle ruter farvekodet per gangart med øvelses-labels
 
 ### 3. Bruger-tilpasning
 
@@ -113,7 +113,7 @@
 | ROUTE-01 | Phase 5 | Complete |
 | ROUTE-02 | Phase 5 | Complete |
 | ROUTE-03 | Phase 5 | Complete |
-| ROUTE-04 | Phase 5 | Pending |
+| ROUTE-04 | Phase 5 | Complete |
 | EDIT-01 | Phase 6 | Pending |
 | EDIT-02 | Phase 6 | Pending |
 | EDIT-03 | Phase 6 | Pending |

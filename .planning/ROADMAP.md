@@ -97,7 +97,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — TDD: Build generateRoutes pure function with exercise type classification and route templates
-- [ ] 05-02-PLAN.md — Create ArenaRouteView component and integrate into arena step
+- [x] 05-02-PLAN.md — Create ArenaRouteView component and integrate into arena step
 
 ### Phase 6: User Customization
 **Goal**: Riders can customize the generated program to make it their own while staying within rules
