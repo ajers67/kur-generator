@@ -30,11 +30,11 @@
 
 ### 4. Regelvalidering
 
-- [ ] **RULE-01**: System validerer at alle obligatoriske øvelser for niveauet er med i programmet
-- [ ] **RULE-02**: System validerer at laterale bevægelser dækker minimum 12 meter
-- [ ] **RULE-03**: System advarer hvis øvelser fra højere niveau er inkluderet (forbudt)
+- [x] **RULE-01**: System validerer at alle obligatoriske øvelser for niveauet er med i programmet
+- [x] **RULE-02**: System validerer at laterale bevægelser dækker minimum 12 meter
+- [x] **RULE-03**: System advarer hvis øvelser fra højere niveau er inkluderet (forbudt)
 - [ ] **RULE-04**: System viser valideringsstatus som tydelige fejl/advarsler i UI'et
-- [ ] **RULE-05**: Validering kører real-time ved hver bruger-ændring
+- [x] **RULE-05**: Validering kører real-time ved hver bruger-ændring
 
 ### 5. Music Generation
 
@@ -105,11 +105,11 @@
 | PROG-04 | Phase 3 | Complete |
 | PROG-05 | Phase 3 | Complete |
 | PROG-06 | Phase 3 | Complete |
-| RULE-01 | Phase 4 | Pending |
-| RULE-02 | Phase 4 | Pending |
-| RULE-03 | Phase 4 | Pending |
+| RULE-01 | Phase 4 | Complete |
+| RULE-02 | Phase 4 | Complete |
+| RULE-03 | Phase 4 | Complete |
 | RULE-04 | Phase 4 | Pending |
-| RULE-05 | Phase 4 | Pending |
+| RULE-05 | Phase 4 | Complete |
 | ROUTE-01 | Phase 5 | Pending |
 | ROUTE-02 | Phase 5 | Pending |
 | ROUTE-03 | Phase 5 | Pending |

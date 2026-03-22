@@ -80,7 +80,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [x] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
 - [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ### Phase 5: Auto-generated Arena Routes
