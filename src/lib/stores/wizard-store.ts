@@ -12,6 +12,7 @@ interface WizardState extends ProjectData {
   setTemperament: (t: "calm" | "neutral" | "energetic") => void;
   setExerciseRating: (id: number, rating: StrengthRating) => void;
   setProgramOrder: (order: number[]) => void;
+  setCustomProgramOrder: (order: number[] | null) => void;
   setArenaPaths: (paths: ArenaPath[]) => void;
   setMusicSettings: (settings: MusicSettings) => void;
   setStep: (step: Step) => void;
@@ -24,7 +25,7 @@ export const useWizardStore = create<WizardState>()((set, get) => ({
   ...DEFAULT_PROJECT_DATA,
 
   setLevel: (level: KurLevel) => {
-    set({ selectedLevel: level, exerciseRatings: {}, programOrder: [] });
+    set({ selectedLevel: level, exerciseRatings: {}, programOrder: [], customProgramOrder: null });
   },
 
   setHorseName: (name: string) => {
@@ -43,6 +44,10 @@ export const useWizardStore = create<WizardState>()((set, get) => ({
 
   setProgramOrder: (order: number[]) => {
     set({ programOrder: order });
+  },
+
+  setCustomProgramOrder: (order: number[] | null) => {
+    set({ customProgramOrder: order });
   },
 
   setArenaPaths: (paths: ArenaPath[]) => {
@@ -66,6 +71,7 @@ export const useWizardStore = create<WizardState>()((set, get) => ({
         temperament: data.temperament,
         exerciseRatings: data.exerciseRatings,
         programOrder: data.programOrder,
+        customProgramOrder: data.customProgramOrder ?? null,
         arenaPaths: data.arenaPaths,
         musicSettings: data.musicSettings,
         currentStep: data.currentStep,
@@ -83,6 +89,7 @@ export const useWizardStore = create<WizardState>()((set, get) => ({
       temperament: state.temperament,
       exerciseRatings: state.exerciseRatings,
       programOrder: state.programOrder,
+      customProgramOrder: state.customProgramOrder,
       arenaPaths: state.arenaPaths,
       musicSettings: state.musicSettings,
       currentStep: state.currentStep,

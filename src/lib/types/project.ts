@@ -36,6 +36,7 @@ export interface ProjectData {
   temperament: "calm" | "neutral" | "energetic";
   exerciseRatings: Record<number, StrengthRating>;
   programOrder: number[];
+  customProgramOrder: number[] | null;
   arenaPaths: ArenaPath[];
   musicSettings: MusicSettings;
   currentStep: Step;
@@ -47,6 +48,7 @@ export const DEFAULT_PROJECT_DATA: ProjectData = {
   temperament: "neutral",
   exerciseRatings: {},
   programOrder: [],
+  customProgramOrder: null,
   arenaPaths: [],
   musicSettings: {},
   currentStep: "level",

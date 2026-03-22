@@ -7,6 +7,7 @@ import { useWizardStore } from "@/lib/stores/wizard-store";
 import { STEPS, STEP_LABELS } from "@/lib/types/project";
 import type { Step } from "@/lib/types/project";
 import { KUR_LEVELS } from "@/data/kur-levels";
+import type { Exercise } from "@/data/kur-levels";
 import { generateProgramOrder } from "@/lib/program-generator";
 import { ProjectSelector } from "@/components/ProjectSelector";
 import { LevelSelector } from "@/components/LevelSelector";
@@ -30,6 +31,7 @@ export default function Home() {
   const temperament = useWizardStore((s) => s.temperament);
   const exerciseRatings = useWizardStore((s) => s.exerciseRatings);
   const programOrder = useWizardStore((s) => s.programOrder);
+  const customProgramOrder = useWizardStore((s) => s.customProgramOrder);
   const arenaPaths = useWizardStore((s) => s.arenaPaths);
   const step = useWizardStore((s) => s.currentStep);
 
@@ -39,6 +41,7 @@ export default function Home() {
   const setTemperament = useWizardStore((s) => s.setTemperament);
   const setExerciseRating = useWizardStore((s) => s.setExerciseRating);
   const setProgramOrder = useWizardStore((s) => s.setProgramOrder);
+  const setCustomProgramOrder = useWizardStore((s) => s.setCustomProgramOrder);
   const setArenaPaths = useWizardStore((s) => s.setArenaPaths);
   const setStep = useWizardStore((s) => s.setStep);
   const loadProject = useWizardStore((s) => s.loadProject);
@@ -65,16 +68,26 @@ export default function Home() {
     [selectedLevel, exerciseRatings, temperament, programSeed]
   );
 
+  // Resolve active program order: custom (user-reordered) takes priority over computed
+  const activeProgramOrder = useMemo(() => {
+    if (customProgramOrder && selectedLevel) {
+      return customProgramOrder
+        .map((id) => selectedLevel.exercises.find((e) => e.id === id))
+        .filter(Boolean) as Exercise[];
+    }
+    return computedProgramOrder;
+  }, [customProgramOrder, computedProgramOrder, selectedLevel]);
+
   // Sync derived programOrder into store for persistence
   const prevOrderRef = useRef<string>("");
   useEffect(() => {
-    if (computedProgramOrder.length === 0) return;
-    const key = computedProgramOrder.map((e) => e.id).join(",");
+    if (activeProgramOrder.length === 0) return;
+    const key = activeProgramOrder.map((e) => e.id).join(",");
     if (key !== prevOrderRef.current) {
       prevOrderRef.current = key;
-      setProgramOrder(computedProgramOrder.map((e) => e.id));
+      setProgramOrder(activeProgramOrder.map((e) => e.id));
     }
-  }, [computedProgramOrder, setProgramOrder]);
+  }, [activeProgramOrder, setProgramOrder]);
 
   // Auto-save wizard state when it changes
   useEffect(() => {
@@ -238,6 +251,8 @@ export default function Home() {
             ratings={exerciseRatings}
             horseName={horseName}
             temperament={temperament}
+            programOrder={activeProgramOrder}
+            onReorder={setCustomProgramOrder}
             onBack={() => setStep("exercises")}
             onNext={() => setStep("arena")}
           />
@@ -254,7 +269,7 @@ export default function Home() {
             </p>
 
             <ArenaRouteView
-              programOrder={computedProgramOrder}
+              programOrder={activeProgramOrder}
               ratings={exerciseRatings}
               onRoutesGenerated={setArenaPaths}
             />
@@ -279,7 +294,7 @@ export default function Home() {
         {step === "music" && selectedLevel && (
           <MusicManager
             level={selectedLevel}
-            programOrder={computedProgramOrder}
+            programOrder={activeProgramOrder}
             onBack={() => setStep("arena")}
           />
         )}
