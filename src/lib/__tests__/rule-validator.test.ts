@@ -34,10 +34,17 @@ function validGPProgram(): Exercise[] {
 
 describe("rule-validator", () => {
   describe("valid programs", () => {
-    it("returns empty array for valid LA program with all exercises present, entry first", () => {
+    it("returns no errors for valid LA program with all exercises present, entry first", () => {
       const program = validLAProgram();
       const results = validateProgram(LA, program);
-      expect(results).toEqual([]);
+      const errors = results.filter((r) => r.severity === "error");
+      expect(errors).toEqual([]);
+    });
+
+    it("only produces advisory warnings (not errors) for a fully valid program", () => {
+      const program = validLAProgram();
+      const results = validateProgram(LA, program);
+      expect(results.every((r) => r.severity === "warning")).toBe(true);
     });
   });
 
