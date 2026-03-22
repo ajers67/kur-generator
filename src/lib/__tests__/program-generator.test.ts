@@ -202,6 +202,84 @@ describe("randomization", () => {
   });
 });
 
+describe("temperament gait sequencing", () => {
+  // Helper: extract gait sequence from program (skipping entry at index 0)
+  function gaitSequence(program: Exercise[]): string[] {
+    return program.slice(1).map((e) => e.gait);
+  }
+
+  it("calm: skridt appears before galop after entry (D-10)", () => {
+    const result = generateProgramOrder(LA, makeRatings({}), "calm", {
+      seed: 42,
+    });
+    const afterEntry = result.slice(1);
+    const firstSkridtIdx = afterEntry.findIndex((e) => e.gait === "skridt");
+    const firstGalopIdx = afterEntry.findIndex((e) => e.gait === "galop");
+    // D-10: Calm horse gets skridt early, galop later (gradual warm-up)
+    expect(firstSkridtIdx).toBeGreaterThan(-1);
+    expect(firstGalopIdx).toBeGreaterThan(-1);
+    expect(firstSkridtIdx).toBeLessThan(firstGalopIdx);
+  });
+
+  it("energetic: trav/galop appears before skridt, skridt in second half (D-11)", () => {
+    const result = generateProgramOrder(LA, makeRatings({}), "energetic", {
+      seed: 42,
+    });
+    const afterEntry = result.slice(1);
+    // D-11: Energetic horse starts with trav/galop, skridt as mid-program pause
+    const firstGait = afterEntry[0].gait;
+    expect(firstGait === "trav" || firstGait === "galop").toBe(true);
+
+    // Skridt should appear in the second half of the program (mid-program pause)
+    const firstSkridtIdx = afterEntry.findIndex((e) => e.gait === "skridt");
+    expect(firstSkridtIdx).toBeGreaterThan(-1);
+    const halfPoint = Math.floor(afterEntry.length / 2);
+    expect(firstSkridtIdx).toBeGreaterThanOrEqual(halfPoint);
+  });
+
+  it("neutral: trav appears first after entry (D-12)", () => {
+    const result = generateProgramOrder(LA, makeRatings({}), "neutral", {
+      seed: 42,
+    });
+    // D-12: Neutral horse starts with trav (balanced)
+    expect(result[1].gait).toBe("trav");
+  });
+
+  it("different temperaments produce different skridt placement", () => {
+    const calm = generateProgramOrder(LA, makeRatings({}), "calm", {
+      seed: 42,
+    });
+    const energetic = generateProgramOrder(LA, makeRatings({}), "energetic", {
+      seed: 42,
+    });
+    const neutral = generateProgramOrder(LA, makeRatings({}), "neutral", {
+      seed: 42,
+    });
+
+    // Extract gait sequences (after entry)
+    const calmGaits = gaitSequence(calm);
+    const energeticGaits = gaitSequence(energetic);
+    const neutralGaits = gaitSequence(neutral);
+
+    // Find first skridt position in each
+    const calmSkridtIdx = calmGaits.indexOf("skridt");
+    const energeticSkridtIdx = energeticGaits.indexOf("skridt");
+    const neutralSkridtIdx = neutralGaits.indexOf("skridt");
+
+    // Calm should have skridt earliest, energetic latest (D-10 vs D-11)
+    expect(calmSkridtIdx).toBeLessThan(energeticSkridtIdx);
+    // Neutral should be between calm and energetic (D-12)
+    expect(neutralSkridtIdx).toBeLessThan(energeticSkridtIdx);
+
+    // At least 2 of the 3 full gait sequences should differ
+    const sequences = [calmGaits, energeticGaits, neutralGaits].map((g) =>
+      JSON.stringify(g),
+    );
+    const uniqueSequences = new Set(sequences);
+    expect(uniqueSequences.size).toBeGreaterThanOrEqual(2);
+  });
+});
+
 describe("API contract", () => {
   it("function accepts 3 args (backwards compatible) and returns Exercise[]", () => {
     const result = generateProgramOrder(LA, makeRatings({}), "neutral");
