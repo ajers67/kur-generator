@@ -42,27 +42,32 @@ interface Props {
   width?: number;
   height?: number;
   paths: ArenaPath[];
-  currentPath: PathPoint[];
-  currentGait: Gait;
-  isDrawing: boolean;
-  onMouseDown: (point: PathPoint) => void;
-  onMouseMove: (point: PathPoint) => void;
-  onMouseUp: () => void;
+  currentPath?: PathPoint[];
+  currentGait?: Gait;
+  isDrawing?: boolean;
+  onMouseDown?: (point: PathPoint) => void;
+  onMouseMove?: (point: PathPoint) => void;
+  onMouseUp?: () => void;
   sequenceNumber?: number;
+  labels?: { exerciseId: number; label: string; point: PathPoint }[];
+  transitions?: { from: PathPoint; to: PathPoint }[];
 }
 
 export function ArenaCanvas({
   width = 300,
   height = 450,
   paths,
-  currentPath,
-  currentGait,
-  isDrawing,
+  currentPath = [],
+  currentGait = "trav",
+  isDrawing = false,
   onMouseDown,
   onMouseMove,
   onMouseUp,
   sequenceNumber,
+  labels,
+  transitions,
 }: Props) {
+  const isInteractive = !!(onMouseDown && onMouseMove && onMouseUp);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const padding = 30;
@@ -182,6 +187,52 @@ export function ArenaCanvas({
       drawPath(ctx, currentPath, GAIT_COLORS[currentGait], currentGait === "skridt");
     }
 
+    // Draw transition lines (gray dashed)
+    if (transitions && transitions.length > 0) {
+      ctx.strokeStyle = "#9ca3af";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 3]);
+      for (const t of transitions) {
+        const from = toCanvasCoords(t.from.x, t.from.y);
+        const to = toCanvasCoords(t.to.x, t.to.y);
+        ctx.beginPath();
+        ctx.moveTo(from.cx, from.cy);
+        ctx.lineTo(to.cx, to.cy);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+
+    // Draw exercise labels at midpoints
+    if (labels && labels.length > 0) {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "9px sans-serif";
+      for (const lbl of labels) {
+        const pos = toCanvasCoords(lbl.point.x, lbl.point.y);
+        // Find matching path to get gait color
+        const matchedPath = paths.find((p) => p.exerciseId === lbl.exerciseId);
+        const color = matchedPath ? GAIT_COLORS[matchedPath.gait] : "#374151";
+
+        // Measure text for background
+        const textMetrics = ctx.measureText(lbl.label);
+        const textW = textMetrics.width + 6;
+        const textH = 14;
+
+        // White rounded rect background
+        const rx = pos.cx - textW / 2;
+        const ry = pos.cy - textH / 2;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.beginPath();
+        ctx.roundRect(rx, ry, textW, textH, 3);
+        ctx.fill();
+
+        // Label text
+        ctx.fillStyle = color;
+        ctx.fillText(lbl.label, pos.cx, pos.cy);
+      }
+    }
+
     // Sequence number
     if (sequenceNumber !== undefined) {
       ctx.fillStyle = "#374151";
@@ -189,7 +240,7 @@ export function ArenaCanvas({
       ctx.textAlign = "left";
       ctx.fillText(`#${sequenceNumber}`, 4, 16);
     }
-  }, [width, height, arenaW, arenaH, paths, currentPath, currentGait, toCanvasCoords, sequenceNumber]);
+  }, [width, height, arenaW, arenaH, paths, currentPath, currentGait, toCanvasCoords, sequenceNumber, labels, transitions]);
 
   function drawPath(ctx: CanvasRenderingContext2D, points: PathPoint[], color: string, dashed: boolean) {
     ctx.strokeStyle = color;
@@ -238,19 +289,30 @@ export function ArenaCanvas({
     handler(point);
   };
 
+  if (!isInteractive) {
+    return (
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        className="border border-gray-300 rounded-lg"
+      />
+    );
+  }
+
   return (
     <canvas
       ref={canvasRef}
       width={width}
       height={height}
       className="border border-gray-300 rounded-lg cursor-crosshair touch-none"
-      onPointerDown={(e) => handlePointerEvent(e, onMouseDown)}
+      onPointerDown={(e) => handlePointerEvent(e, onMouseDown!)}
       onPointerMove={(e) => {
-        if (isDrawing) handlePointerEvent(e, onMouseMove);
+        if (isDrawing) handlePointerEvent(e, onMouseMove!);
       }}
-      onPointerUp={() => onMouseUp()}
+      onPointerUp={() => onMouseUp!()}
       onPointerLeave={() => {
-        if (isDrawing) onMouseUp();
+        if (isDrawing) onMouseUp!();
       }}
     />
   );
