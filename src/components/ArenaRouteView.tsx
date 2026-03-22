@@ -116,13 +116,6 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
               </div>
             ))}
           </div>
-          {/* Regenerate button */}
-          <button
-            onClick={handleRegenerate}
-            className="mt-3 w-full px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            Gener nye ruter
-          </button>
         </div>
       </div>
 
