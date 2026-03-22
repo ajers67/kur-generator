@@ -14,8 +14,8 @@ Koreografi-principper er dokumenteret i `.planning/CHOREOGRAPHY-RULES.md` -- den
 
 - [x] **Phase 1: Code Cleanup** - Deduplicate program generation and remove dead code
 - [x] **Phase 2: Wizard Persistence** - Save wizard state so work survives page refresh (completed 2026-03-21)
-- [ ] **Phase 3: Intelligent Program Generator** - Rebuild program ordering based on choreography principles
-- [ ] **Phase 4: Rule Validation Engine** - Real-time validation of FEI/DRF rules
+- [x] **Phase 3: Intelligent Program Generator** - Rebuild program ordering based on choreography principles
+- [x] **Phase 4: Rule Validation Engine** - Real-time validation of FEI/DRF rules
 - [ ] **Phase 5: Auto-generated Arena Routes** - Generate visual routes in the arena for each exercise
 - [ ] **Phase 6: User Customization** - Drag-and-drop editing of program order and routes
 - [ ] **Phase 7: Lyria Music Generation** - Generate per-gait music via Google Lyria API
@@ -96,8 +96,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [x] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
-- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
+- [ ] 05-01-PLAN.md — TDD: Build generateRoutes pure function with exercise type classification and route templates
+- [ ] 05-02-PLAN.md — Create ArenaRouteView component and integrate into arena step
 
 ### Phase 6: User Customization
 **Goal**: Riders can customize the generated program to make it their own while staying within rules
@@ -112,8 +112,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
-- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
+- [ ] 06-01-PLAN.md — [To be planned]
+- [ ] 06-02-PLAN.md — [To be planned]
 
 ### Phase 7: Lyria Music Generation
 **Goal**: Riders can generate custom music for each gait with correct BPM, preview it, and iterate
@@ -128,8 +128,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
-- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
+- [ ] 07-01-PLAN.md — [To be planned]
+- [ ] 07-02-PLAN.md — [To be planned]
 
 ### Phase 8: Mix Pipeline & Music Persistence
 **Goal**: Combine gait tracks into one downloadable kur file, persist everything
@@ -143,8 +143,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
-- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
+- [ ] 08-01-PLAN.md — [To be planned]
+- [ ] 08-02-PLAN.md — [To be planned]
 
 ## Progress
 
@@ -156,8 +156,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Code Cleanup | 2/2 | Complete | 2026-03-20 |
 | 2. Wizard Persistence | 3/3 | Complete   | 2026-03-21 |
 | 3. Intelligent Program Generator | 2/2 | Complete | 2026-03-22 |
-| 4. Rule Validation Engine | 0/2 | Not started | - |
-| 5. Auto-generated Arena Routes | 0/? | Not started | - |
+| 4. Rule Validation Engine | 2/2 | Complete | 2026-03-22 |
+| 5. Auto-generated Arena Routes | 0/2 | Not started | - |
 | 6. User Customization | 0/? | Not started | - |
 | 7. Lyria Music Generation | 0/? | Not started | - |
 | 8. Mix Pipeline & Music Persistence | 0/? | Not started | - |
