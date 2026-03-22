@@ -129,8 +129,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — [To be planned]
-- [ ] 07-02-PLAN.md — [To be planned]
+- [ ] 07-01-PLAN.md — MusicProvider abstraction, Lyria server proxy, and PCM-to-WAV conversion
+- [ ] 07-02-PLAN.md — Rewrite MusicManager UI for AI generation with playback and controls
 
 ### Phase 8: Mix Pipeline & Music Persistence
 **Goal**: Combine gait tracks into one downloadable kur file, persist everything
@@ -160,5 +160,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Rule Validation Engine | 2/2 | Complete | 2026-03-22 |
 | 5. Auto-generated Arena Routes | 0/2 | Not started | - |
 | 6. User Customization | 0/2 | Not started | - |
-| 7. Lyria Music Generation | 0/? | Not started | - |
+| 7. Lyria Music Generation | 0/2 | Not started | - |
 | 8. Mix Pipeline & Music Persistence | 0/? | Not started | - |
