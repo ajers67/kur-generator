@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import type { KurLevel, Exercise } from "@/data/kur-levels";
 import type { StrengthRating } from "@/data/strength-options";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
-import { generateProgramOrder } from "@/lib/program-generator";
 import { validateProgram } from "@/lib/rule-validator";
 import { ValidationBanner } from "./ValidationBanner";
 
@@ -13,12 +12,24 @@ interface Props {
   ratings: Record<number, StrengthRating>;
   horseName: string;
   temperament: "calm" | "neutral" | "energetic";
+  programOrder: Exercise[];
+  onReorder: (order: number[] | null) => void;
   onBack: () => void;
   onNext?: () => void;
 }
 
-export function ProgramPreview({ level, ratings, horseName, temperament, onBack, onNext }: Props) {
-  const program = generateProgramOrder(level, ratings, temperament);
+function reorderExercises(list: Exercise[], fromIndex: number, toIndex: number): Exercise[] {
+  const result = [...list];
+  const [moved] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, moved);
+  return result;
+}
+
+export function ProgramPreview({ level, ratings, horseName, temperament, programOrder, onReorder, onBack, onNext }: Props) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
+  const program = programOrder;
 
   const validationResults = useMemo(
     () => validateProgram(level, program),
@@ -27,6 +38,52 @@ export function ProgramPreview({ level, ratings, horseName, temperament, onBack,
 
   const strengths = program.filter((e) => ratings[e.id] === "strength");
   const weaknesses = program.filter((e) => ratings[e.id] === "weakness");
+
+  const lastIndex = program.length - 1;
+
+  // Entry (index 0) and finale (last index) are locked
+  const isDraggable = useCallback((index: number) => {
+    return index > 0 && index < lastIndex;
+  }, [lastIndex]);
+
+  const isDropTarget = useCallback((index: number) => {
+    return index > 0 && index < lastIndex;
+  }, [lastIndex]);
+
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    if (!isDraggable(index)) {
+      e.preventDefault();
+      return;
+    }
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  }, [isDraggable]);
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (isDropTarget(index)) {
+      setDropIndex(index);
+    }
+  }, [isDropTarget]);
+
+  const handleDragLeave = useCallback((index: number) => {
+    setDropIndex((prev) => (prev === index ? null : prev));
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, toIndex: number) => {
+    e.preventDefault();
+    if (dragIndex !== null && isDropTarget(toIndex) && dragIndex !== toIndex) {
+      const newOrder = reorderExercises(program, dragIndex, toIndex);
+      onReorder(newOrder.map((ex) => ex.id));
+    }
+    setDragIndex(null);
+    setDropIndex(null);
+  }, [dragIndex, isDropTarget, program, onReorder]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragIndex(null);
+    setDropIndex(null);
+  }, []);
 
   return (
     <div>
@@ -37,7 +94,7 @@ export function ProgramPreview({ level, ratings, horseName, temperament, onBack,
         Tid: {level.timeMin} - {level.timeMax} | Max score: {level.maxScore}
       </p>
       <p className="text-gray-500 text-sm mb-6">
-        Programmet er sorteret med styrker på fremtrædende pladser.
+        Programmet er sorteret med styrker på fremtrædende pladser. Træk øvelser op/ned for at ændre rækkefølgen.
         {strengths.length > 0 && ` ${strengths.length} styrker placeret prominent.`}
         {weaknesses.length > 0 && ` ${weaknesses.length} svagheder minimeret.`}
       </p>
@@ -61,18 +118,36 @@ export function ProgramPreview({ level, ratings, horseName, temperament, onBack,
         <div className="divide-y divide-gray-100">
           {program.map((ex, i) => {
             const rating = ratings[ex.id] || "neutral";
+            const canDrag = isDraggable(i);
+            const isBeingDragged = dragIndex === i;
+            const isOver = dropIndex === i && isDropTarget(i);
             return (
               <div
                 key={ex.id}
-                className={`px-4 py-3 grid grid-cols-12 items-center text-sm ${
-                  rating === "strength"
+                draggable={canDrag}
+                onDragStart={(e) => handleDragStart(e, i)}
+                onDragOver={(e) => handleDragOver(e, i)}
+                onDragLeave={() => handleDragLeave(i)}
+                onDrop={(e) => handleDrop(e, i)}
+                onDragEnd={handleDragEnd}
+                className={`px-4 py-3 grid grid-cols-12 items-center text-sm transition-colors ${
+                  isBeingDragged
+                    ? "opacity-40"
+                    : isOver
+                    ? "border-2 border-blue-400 bg-blue-50"
+                    : rating === "strength"
                     ? "bg-green-50"
                     : rating === "weakness"
                     ? "bg-red-50"
                     : ""
-                }`}
+                } ${canDrag ? "cursor-grab active:cursor-grabbing" : ""}`}
               >
-                <span className="col-span-1 text-gray-400 font-mono">{i + 1}</span>
+                <span className="col-span-1 flex items-center gap-1">
+                  {canDrag && (
+                    <span className="text-gray-300 text-xs select-none" title="Træk for at flytte">&#x2630;</span>
+                  )}
+                  <span className="text-gray-400 font-mono">{i + 1}</span>
+                </span>
                 <span className="col-span-5 font-medium text-gray-900">
                   {ex.name}
                   {ex.minDistance && (
@@ -99,10 +174,10 @@ export function ProgramPreview({ level, ratings, horseName, temperament, onBack,
                 </span>
                 <span className="col-span-2 text-center">
                   {rating === "strength" && (
-                    <span className="text-green-700 font-medium">\u2191 Styrke</span>
+                    <span className="text-green-700 font-medium">{"\u2191"} Styrke</span>
                   )}
                   {rating === "weakness" && (
-                    <span className="text-red-700 font-medium">\u2193 Svaghed</span>
+                    <span className="text-red-700 font-medium">{"\u2193"} Svaghed</span>
                   )}
                   {rating === "neutral" && (
                     <span className="text-gray-400">Neutral</span>
