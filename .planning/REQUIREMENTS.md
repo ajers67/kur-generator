@@ -7,12 +7,12 @@
 
 ### 1. Intelligent Program Generation
 
-- [ ] **PROG-01**: System genererer en øvelsesrækkefølge baseret på koreografi-principper: styrker placeret mod C/diagonaler, svagheder korte og diskrete, musikalsk bue (rolig start → klimaks → afslutning)
-- [ ] **PROG-02**: Koefficienter indgår i placeringslogikken — høj-koefficient øvelser får bedre placering (mod C, mere plads)
+- [x] **PROG-01**: System genererer en øvelsesrækkefølge baseret på koreografi-principper: styrker placeret mod C/diagonaler, svagheder korte og diskrete, musikalsk bue (rolig start → klimaks → afslutning)
+- [x] **PROG-02**: Koefficienter indgår i placeringslogikken — høj-koefficient øvelser får bedre placering (mod C, mere plads)
 - [ ] **PROG-03**: Temperament påvirker gangartsskift-strategien (rolig hest: gradvis opbygning, energisk: få energi ud tidligt)
-- [ ] **PROG-04**: Generatoren producerer varierede forslag — kontrolleret randomisering så samme input ikke giver identisk program
-- [ ] **PROG-05**: Indridning er altid første øvelse, afslutning altid sidst
-- [ ] **PROG-06**: Symmetri: øvelser der kræver begge hænder fordeles jævnt
+- [x] **PROG-04**: Generatoren producerer varierede forslag — kontrolleret randomisering så samme input ikke giver identisk program
+- [x] **PROG-05**: Indridning er altid første øvelse, afslutning altid sidst
+- [x] **PROG-06**: Symmetri: øvelser der kræver begge hænder fordeles jævnt
 
 ### 2. Auto-genererede Arena-ruter
 
@@ -99,12 +99,12 @@
 | PERS-01 | Phase 2 | Complete |
 | PERS-03 | Phase 2 | Complete |
 | PERS-04 | Phase 2 | Complete |
-| PROG-01 | Phase 3 | Pending |
-| PROG-02 | Phase 3 | Pending |
+| PROG-01 | Phase 3 | Complete |
+| PROG-02 | Phase 3 | Complete |
 | PROG-03 | Phase 3 | Pending |
-| PROG-04 | Phase 3 | Pending |
-| PROG-05 | Phase 3 | Pending |
-| PROG-06 | Phase 3 | Pending |
+| PROG-04 | Phase 3 | Complete |
+| PROG-05 | Phase 3 | Complete |
+| PROG-06 | Phase 3 | Complete |
 | RULE-01 | Phase 4 | Pending |
 | RULE-02 | Phase 4 | Pending |
 | RULE-03 | Phase 4 | Pending |
