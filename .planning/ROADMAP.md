@@ -60,7 +60,11 @@ Plans:
   4. Program follows musical arc (calm start -> build -> climax -> finish)
   5. Same input produces varied results across multiple generations
   6. Entry always first, halt/salute always last, symmetry maintained
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — TDD: Build intelligent program generator with arc structure, placement, symmetry, and randomization
+- [ ] 03-02-PLAN.md — Add temperament gait-ordering tests for PROG-03 coverage
 
 ### Phase 4: Rule Validation Engine
 **Goal**: System validates FEI/DRF rules in real-time and shows clear errors/warnings
@@ -131,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Code Cleanup | 2/2 | Complete | 2026-03-20 |
 | 2. Wizard Persistence | 3/3 | Complete   | 2026-03-21 |
-| 3. Intelligent Program Generator | 0/? | Not started | - |
+| 3. Intelligent Program Generator | 0/2 | In progress | - |
 | 4. Rule Validation Engine | 0/? | Not started | - |
 | 5. Auto-generated Arena Routes | 0/? | Not started | - |
 | 6. User Customization | 0/? | Not started | - |
