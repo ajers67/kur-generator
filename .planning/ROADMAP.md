@@ -77,7 +77,11 @@ Plans:
   3. Higher-level exercises flagged as forbidden
   4. Validation runs on every program change without perceptible delay
   5. Errors/warnings displayed clearly in UI (red/yellow badges)
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ### Phase 5: Auto-generated Arena Routes
 **Goal**: System generates visual routes in the 20x60 arena for each exercise, connected with transitions
@@ -89,7 +93,11 @@ Plans:
   2. Strength exercises route toward C-end, weakness exercises in less visible zones
   3. Routes connected with transition lines between exercises
   4. Arena view shows all routes color-coded by gait with exercise labels
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ### Phase 6: User Customization
 **Goal**: Riders can customize the generated program to make it their own while staying within rules
@@ -101,7 +109,11 @@ Plans:
   3. User can regenerate entire program with one click
   4. All changes update both program list and arena view in real-time
   5. Rule validation runs after every edit
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ### Phase 7: Lyria Music Generation
 **Goal**: Riders can generate custom music for each gait with correct BPM, preview it, and iterate
@@ -113,7 +125,11 @@ Plans:
   3. In-browser playback preview
   4. Re-generate any gait track
   5. Animated progress indicator during generation
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ### Phase 8: Mix Pipeline & Music Persistence
 **Goal**: Combine gait tracks into one downloadable kur file, persist everything
@@ -124,7 +140,11 @@ Plans:
   2. Downloadable audio file output
   3. Generated music persists in IndexedDB across sessions
   4. "Start forfra" clears music cache too
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — TDD: Build pure validateProgram function with tests for all FEI/DRF rules
+- [ ] 04-02-PLAN.md — Create ValidationBanner component and integrate into ProgramPreview
 
 ## Progress
 
@@ -135,8 +155,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Code Cleanup | 2/2 | Complete | 2026-03-20 |
 | 2. Wizard Persistence | 3/3 | Complete   | 2026-03-21 |
-| 3. Intelligent Program Generator | 0/2 | In progress | - |
-| 4. Rule Validation Engine | 0/? | Not started | - |
+| 3. Intelligent Program Generator | 2/2 | Complete | 2026-03-22 |
+| 4. Rule Validation Engine | 0/2 | Not started | - |
 | 5. Auto-generated Arena Routes | 0/? | Not started | - |
 | 6. User Customization | 0/? | Not started | - |
 | 7. Lyria Music Generation | 0/? | Not started | - |
