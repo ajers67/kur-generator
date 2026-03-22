@@ -96,7 +96,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — TDD: Build generateRoutes pure function with exercise type classification and route templates
+- [x] 05-01-PLAN.md — TDD: Build generateRoutes pure function with exercise type classification and route templates
 - [ ] 05-02-PLAN.md — Create ArenaRouteView component and integrate into arena step
 
 ### Phase 6: User Customization
