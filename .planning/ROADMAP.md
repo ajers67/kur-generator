@@ -167,7 +167,7 @@ Plans:
 
 Plans:
 - [x] 09-01-PLAN.md — Animation timeline model + useAnimationPlayer hook (pure logic + tests)
-- [ ] 09-02-PLAN.md — Canvas marker rendering + ArenaRouteView integration + visual verification
+- [x] 09-02-PLAN.md — Canvas marker rendering + ArenaRouteView integration + visual verification
 
 ### Phase 10: Playback Controls & Music Sync
 **Goal**: Users can control animation playback and hear synchronized music that matches the current gait

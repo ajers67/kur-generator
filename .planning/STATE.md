@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Arena Animation & Video Preview
 status: unknown
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-03-23T21:27:58.248Z"
+stopped_at: Completed 09-02-PLAN.md (checkpoint pending)
+last_updated: "2026-03-23T21:34:37.815Z"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -54,6 +54,7 @@ Plan: 2 of 2
 
 *Updated after each plan completion*
 | Phase 09 P01 | 4min | 2 tasks | 3 files |
+| Phase 09 P02 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 09]: Arc-length parameterized interpolation for smooth marker movement
 - [Phase 09]: Ref-based rAF hook pattern to avoid stale closures in animation loop
 - [Phase 09]: src/hooks/ directory established for custom React hooks
+- [Phase 09]: Inline marker type in ArenaCanvas Props to avoid coupling to animation-timeline module
+- [Phase 09]: Route interaction disabled during playback by conditionally passing undefined handlers
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T21:27:58.242Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-03-23T21:34:37.809Z
+Stopped at: Completed 09-02-PLAN.md (checkpoint pending)
 Resume file: None
