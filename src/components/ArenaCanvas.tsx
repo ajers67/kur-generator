@@ -96,6 +96,9 @@ interface Props {
   selectedRouteIndex?: number | null;
   onRouteSelect?: (index: number | null) => void;
   onRouteMove?: (index: number, newPoints: PathPoint[]) => void;
+  // Animation marker overlay
+  markerPosition?: { x: number; y: number; gait: Gait } | null;
+  activeExerciseIndex?: number;
 }
 
 export function ArenaCanvas({
@@ -114,6 +117,8 @@ export function ArenaCanvas({
   selectedRouteIndex,
   onRouteSelect,
   onRouteMove,
+  markerPosition,
+  activeExerciseIndex,
 }: Props) {
   const isDrawInteractive = !!(onMouseDown && onMouseMove && onMouseUp);
   const isRouteInteractive = !!(onRouteSelect && onRouteMove) && !isDrawInteractive;
@@ -251,13 +256,18 @@ export function ArenaCanvas({
       const color = GAIT_COLORS[path.gait];
       const dashed = path.gait === "skridt";
 
+      // Trail effect: dim upcoming routes when animation marker is active (D-09)
+      const trailAlpha = (markerPosition && activeExerciseIndex !== undefined)
+        ? (i <= activeExerciseIndex ? 1 : 0.3)
+        : 1;
+
       if (isSelected) {
         // Glow effect for selected route
-        drawPath(ctx, effectivePoints, color, dashed, 6, 0.3);
+        drawPath(ctx, effectivePoints, color, dashed, 6, 0.3 * trailAlpha);
         // Thicker stroke for selected route
-        drawPath(ctx, effectivePoints, color, dashed, 4.5, 1);
+        drawPath(ctx, effectivePoints, color, dashed, 4.5, trailAlpha);
       } else {
-        drawPath(ctx, effectivePoints, color, dashed, 2.5, 1);
+        drawPath(ctx, effectivePoints, color, dashed, 2.5, trailAlpha);
       }
     }
 
@@ -357,7 +367,28 @@ export function ArenaCanvas({
       ctx.textAlign = "left";
       ctx.fillText(`#${sequenceNumber}`, 4, 16);
     }
-  }, [width, height, arenaW, arenaH, paths, currentPath, currentGait, toCanvasCoords, sequenceNumber, labels, transitions, selectedRouteIndex, getEffectivePoints, dragOffset]);
+
+    // Animation marker (D-06)
+    if (markerPosition) {
+      const { cx, cy } = toCanvasCoords(markerPosition.x, markerPosition.y);
+      const markerColor = GAIT_COLORS[markerPosition.gait];
+
+      // Filled circle (radius 8px per D-06)
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+      ctx.fillStyle = markerColor;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // White center dot for visibility
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+    }
+  }, [width, height, arenaW, arenaH, paths, currentPath, currentGait, toCanvasCoords, sequenceNumber, labels, transitions, selectedRouteIndex, getEffectivePoints, dragOffset, markerPosition, activeExerciseIndex]);
 
   function drawPath(ctx: CanvasRenderingContext2D, points: PathPoint[], color: string, dashed: boolean, lineWidth: number, alpha: number) {
     ctx.save();
