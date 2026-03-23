@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import type { KurLevel, Exercise, Gait } from "@/data/kur-levels";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
 import { createMusicProvider } from "@/lib/music-provider";
+import { calculateGaitDurations, maxLyricsForDuration } from "@/lib/gait-duration";
+import type { GaitDuration } from "@/lib/gait-duration";
 
 // Genre presets (D-10)
 const MUSIC_GENRES = ["Klassisk", "Pop/Rock", "Filmmusik", "Jazz", "Elektronisk"];
@@ -36,8 +38,8 @@ const GAIT_BPM_TARGETS: Record<string, number> = {
   piaffe: 62,
 };
 
-// Track duration in seconds (Phase 8 can loop)
-const TRACK_DURATION_SEC = 45;
+// Fallback duration if calculation fails
+const FALLBACK_DURATION_SEC = 45;
 
 function buildDefaultPrompt(genre: string, gait: string, bpm: number): string {
   const template = GAIT_PROMPT_TEMPLATES[gait] || gait;
@@ -75,6 +77,17 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
 
   // Get unique gaits from program (exclude overgang)
   const gaits = [...new Set(programOrder.map((e) => e.gait).filter((g) => g !== "overgang"))];
+
+  // Calculate duration per gait based on coefficient weighting
+  const gaitDurations = useMemo(
+    () => calculateGaitDurations(level, programOrder),
+    [level, programOrder],
+  );
+
+  const getDuration = (gait: string): number => {
+    const found = gaitDurations.find((d: GaitDuration) => d.gait === gait);
+    return found?.durationSec || FALLBACK_DURATION_SEC;
+  };
 
   // Initialize tracks when gaits change
   useEffect(() => {
@@ -130,11 +143,12 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
       if (!track) return;
 
       const isInstrumental = language === "instrumental";
+      const durationSec = getDuration(track.gait);
       const arrayBuffer = await provider.generateTrack({
         style: track.prompt,
         lyrics: isInstrumental ? "" : track.lyrics,
         bpm: track.bpm,
-        durationSec: TRACK_DURATION_SEC,
+        durationSec,
         instrumental: isInstrumental,
         language,
       }
@@ -199,8 +213,8 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
     );
   }, []);
 
-  const handleLyricsChange = useCallback((gaitIndex: number, value: string) => {
-    if (value.length > MAX_LYRICS_CHARS) return;
+  const handleLyricsChange = useCallback((gaitIndex: number, value: string, maxChars: number) => {
+    if (value.length > maxChars) return;
     setTracks((prev) =>
       prev.map((t, i) =>
         i === gaitIndex ? { ...t, lyrics: value, lyricsEdited: true } : t
@@ -322,7 +336,7 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
             key={track.gait}
             className="bg-white rounded-xl border border-gray-200 p-5"
           >
-            {/* Header: gait name + BPM badge */}
+            {/* Header: gait name + BPM + duration badges */}
             <div className="flex items-center gap-3 mb-3">
               <div
                 className="w-3.5 h-3.5 rounded-full"
@@ -333,6 +347,9 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
               </h3>
               <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
                 {track.bpm} BPM
+              </span>
+              <span className="text-xs font-mono bg-blue-50 text-blue-600 px-2 py-0.5 rounded">
+                {Math.floor(getDuration(track.gait) / 60)}:{String(getDuration(track.gait) % 60).padStart(2, "0")}
               </span>
             </div>
 
@@ -354,24 +371,27 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
             </div>
 
             {/* Lyrics textarea (only shown when not instrumental) */}
-            {language !== "instrumental" && (
-              <div className="mb-3">
-                <label className="block text-xs text-gray-500 mb-1">
-                  Sangtekst (valgfri — lad tom for AI-genereret tekst)
-                </label>
-                <textarea
-                  value={track.lyrics}
-                  onChange={(e) => handleLyricsChange(i, e.target.value)}
-                  rows={3}
-                  maxLength={MAX_LYRICS_CHARS}
-                  placeholder="Skriv sangtekst her, eller lad feltet være tomt..."
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div className="text-right text-xs text-gray-400 mt-0.5">
-                  {track.lyrics.length}/{MAX_LYRICS_CHARS}
+            {language !== "instrumental" && (() => {
+              const maxChars = maxLyricsForDuration(getDuration(track.gait));
+              return (
+                <div className="mb-3">
+                  <label className="block text-xs text-gray-500 mb-1">
+                    Sangtekst (valgfri — lad tom for AI-genereret tekst)
+                  </label>
+                  <textarea
+                    value={track.lyrics}
+                    onChange={(e) => handleLyricsChange(i, e.target.value, maxChars)}
+                    rows={3}
+                    maxLength={maxChars}
+                    placeholder="Skriv sangtekst her, eller lad feltet være tomt..."
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <div className="text-right text-xs text-gray-400 mt-0.5">
+                    {track.lyrics.length}/{maxChars} tegn
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Generate / Regenerate buttons */}
             <div className="flex items-center gap-3 mb-3">
