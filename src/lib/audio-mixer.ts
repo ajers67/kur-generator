@@ -1,3 +1,5 @@
+import type { GaitDuration } from "@/lib/gait-duration";
+
 export interface MixSegment {
   trackIndex: number;
   startTime: number;
@@ -9,7 +11,7 @@ export interface MixSegment {
 }
 
 export interface MixTrack {
-  file: File;
+  audioBlob: Blob;
   audioBuffer: AudioBuffer;
   bpm: number;
   assignedGait: string;
@@ -17,32 +19,77 @@ export interface MixTrack {
 
 export function generateMixTimeline(
   tracks: MixTrack[],
-  exercises: { gait: string; name: string }[],
-  totalDurationSec: number
+  exercises: { gait: string; name: string; coefficient: number }[],
+  gaitDurations: GaitDuration[],
 ): MixSegment[] {
   const segments: MixSegment[] = [];
-  const exerciseCount = exercises.length;
-  if (exerciseCount === 0 || tracks.length === 0) return segments;
+  if (exercises.length === 0 || tracks.length === 0) return segments;
 
-  const segmentDuration = totalDurationSec / exerciseCount;
-  const crossfadeDuration = 2; // 2 second crossfades
+  // Build a map of gait -> duration per exercise within that gait
+  const gaitDurationMap = new Map<string, number>();
+  for (const gd of gaitDurations) {
+    if (gd.exerciseCount > 0) {
+      gaitDurationMap.set(gd.gait, gd.durationSec / gd.exerciseCount);
+    }
+  }
 
-  for (let i = 0; i < exerciseCount; i++) {
+  const crossfadeDuration = 2; // 2 second crossfades at gait changes
+  let currentTime = 0;
+
+  for (let i = 0; i < exercises.length; i++) {
     const exercise = exercises[i];
+    const prevExercise = i > 0 ? exercises[i - 1] : null;
+    const isGaitChange = prevExercise !== null && prevExercise.gait !== exercise.gait;
+    const isFirst = i === 0;
+    const isLast = i === exercises.length - 1;
 
-    // Find the best matching track for this gait
+    // Find matching track for this gait
     const matchingTrack = tracks.findIndex((t) => t.assignedGait === exercise.gait);
     const trackIndex = matchingTrack >= 0 ? matchingTrack : 0;
 
+    // Duration for this exercise from coefficient-weighted gait durations
+    const exerciseDuration = gaitDurationMap.get(exercise.gait) || 30;
+
+    // Determine fade durations per D-03 and D-04
+    let fadeInDuration: number;
+    let fadeOutDuration: number;
+
+    if (isFirst) {
+      fadeInDuration = 0.5; // Gentle start
+    } else if (isGaitChange) {
+      fadeInDuration = crossfadeDuration; // Crossfade at gait change
+      // Pull start back by crossfade duration for overlap
+      currentTime -= crossfadeDuration;
+    } else {
+      fadeInDuration = 0; // Seamless within same gait
+    }
+
+    const startTime = currentTime;
+    const endTime = startTime + exerciseDuration;
+
+    // Check next exercise to determine fadeOut
+    const nextExercise = i < exercises.length - 1 ? exercises[i + 1] : null;
+    const isNextGaitChange = nextExercise !== null && nextExercise.gait !== exercise.gait;
+
+    if (isLast) {
+      fadeOutDuration = 1.0; // Gentle end
+    } else if (isNextGaitChange) {
+      fadeOutDuration = crossfadeDuration; // Crossfade at gait change
+    } else {
+      fadeOutDuration = 0; // Seamless within same gait
+    }
+
     segments.push({
       trackIndex,
-      startTime: i * segmentDuration,
-      endTime: (i + 1) * segmentDuration,
-      fadeInDuration: i === 0 ? 0.5 : crossfadeDuration,
-      fadeOutDuration: i === exerciseCount - 1 ? 1 : crossfadeDuration,
+      startTime,
+      endTime,
+      fadeInDuration,
+      fadeOutDuration,
       gait: exercise.gait,
       exerciseName: exercise.name,
     });
+
+    currentTime = endTime;
   }
 
   return segments;
@@ -51,7 +98,7 @@ export function generateMixTimeline(
 export async function renderMix(
   tracks: MixTrack[],
   segments: MixSegment[],
-  totalDurationSec: number
+  totalDurationSec: number,
 ): Promise<AudioBuffer> {
   if (segments.length === 0 || tracks.length === 0) {
     throw new Error("No segments or tracks to mix");
@@ -127,21 +174,31 @@ export function audioBufferToWav(buffer: AudioBuffer): Blob {
   view.setUint32(40, dataLength, true);
 
   // Interleave channel data
-  const channels: Float32Array[] = [];
+  const channelData: Float32Array[] = [];
   for (let ch = 0; ch < numChannels; ch++) {
-    channels.push(buffer.getChannelData(ch));
+    channelData.push(buffer.getChannelData(ch));
   }
 
   let offset = 44;
   for (let i = 0; i < buffer.length; i++) {
     for (let ch = 0; ch < numChannels; ch++) {
-      const sample = Math.max(-1, Math.min(1, channels[ch][i]));
+      const sample = Math.max(-1, Math.min(1, channelData[ch][i]));
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
       offset += 2;
     }
   }
 
   return new Blob([arrayBuffer], { type: "audio/wav" });
+}
+
+export async function decodeBlobToAudioBuffer(blob: Blob): Promise<AudioBuffer> {
+  const arrayBuffer = await blob.arrayBuffer();
+  const audioContext = new AudioContext();
+  try {
+    return await audioContext.decodeAudioData(arrayBuffer);
+  } finally {
+    await audioContext.close();
+  }
 }
 
 function writeString(view: DataView, offset: number, str: string) {
