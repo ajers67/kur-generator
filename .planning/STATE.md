@@ -1,66 +1,60 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: unknown
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-23T21:00:55.443Z"
+milestone: v2.0
+milestone_name: Arena Animation & Video Preview
+status: ready_to_plan
+stopped_at: v2.0 roadmap created, ready to plan Phase 9
+last_updated: "2026-03-23"
 progress:
-  total_phases: 8
-  completed_phases: 6
+  total_phases: 11
+  completed_phases: 8
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 17
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-20)
+See: .planning/PROJECT.md (updated 2026-03-23)
 
-**Core value:** Rytteren kan ga fra valgt niveau til et komplet kur-program med tilpasset musik -- alt i en samlet arbejdsgang.
-**Current focus:** Phase 08 — mix-pipeline-music-persistence
+**Core value:** Rytteren far et professionelt kur-forslag med ruter og musik — genereret pa sekunder, ikke uger — som de kan tilpasse og gore til deres eget.
+**Current focus:** Phase 9 — Arena Animation Engine
 
 ## Current Position
 
-Phase: 08
+Phase: 9 of 11 (Arena Animation Engine)
 Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-23 — v2.0 roadmap created with 3 phases (9-11)
+
+Progress: [████████░░] 77% (8/11 phases, 17/17 v1 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 17
+- Average duration: 3.3 min
+- Total execution time: ~56 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| Phase 01 | 2 | 8min | 4min |
+| Phase 02 | 3 | 10min | 3.3min |
+| Phase 03 | 2 | 9min | 4.5min |
+| Phase 04 | 2 | 6min | 3min |
+| Phase 05 | 2 | 6min | 3min |
+| Phase 06 | 2 | 7min | 3.5min |
+| Phase 07 | 1 | 3min | 3min |
+| Phase 08 | 1 | 3min | 3min |
 
 **Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
+- Last 5 plans: 3min, 4min, 3min, 3min, 3min
+- Trend: Stable
 
 *Updated after each plan completion*
-| Phase 01 P01 | 4min | 2 tasks | 3 files |
-| Phase 01 P02 | 4min | 2 tasks | 5 files |
-| Phase 02 P01 | 2min | 2 tasks | 7 files |
-| Phase 02 P03 | 3min | 2 tasks | 5 files |
-| Phase 02 P02 | 5min | 3 tasks | 4 files |
-| Phase 03 P01 | 5min | 2 tasks | 2 files |
-| Phase 03 P02 | 4min | 1 tasks | 1 files |
-| Phase 04 P01 | 3min | 1 tasks | 2 files |
-| Phase 04 P02 | 3min | 2 tasks | 2 files |
-| Phase 05 P01 | 3min | 1 tasks | 2 files |
-| Phase 05 P02 | 3min | 2 tasks | 3 files |
-| Phase 06 P01 | 4min | 2 tasks | 4 files |
-| Phase 06 P02 | 3min | 1 tasks | 2 files |
-| Phase 07 P01 | 3min | 2 tasks | 10 files |
-| Phase 08 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -69,34 +63,11 @@ Plan: Not started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Roadmap: Google Lyria replaces Mubert (free vs $49/mo), research summary still references Mubert but requirements updated
-- Roadmap: Phase 1 is cleanup before features to establish clean foundation
-- Roadmap: Persistence before music API to avoid losing generated tracks
-- [Phase 01]: Kept sortByStrength as module-private closure inside generateProgramOrder
-- [Phase 01]: Pure dead code removal (D-04 through D-07) - no design decisions needed
-- [Phase 02]: Zustand persist for project list, manual persistence for wizard data
-- [Phase 02]: Versioned localStorage format ({ state, version: 1 }) for future migrations
-- [Phase 02]: Used jsdom environment for localStorage availability in tests
-- [Phase 02]: Test zustand stores via getState()/setState() without React rendering
-- [Phase 02]: Hydration guard renders loading skeleton until stores hydrated, preventing SSR mismatch
-- [Phase 02]: Auto-save via useEffect on key state changes rather than explicit save buttons
-- [Phase 02]: Project selector shown when no activeProjectId, wizard shown when project is active
-- [Phase 03]: Arc sections sized 50%/40%/10% (build-up/climax/wind-down) to satisfy placement constraints
-- [Phase 03]: Score formula: ratingScore*2 + coefficient*3, with D-09 midrange cap at 4
-- [Phase 03]: Pair detection via name normalization (removing directional suffixes)
-- [Phase 03]: Test skridt placement position rather than first-gait-after-entry for temperament verification
-- [Phase 04]: Min-distance warnings are advisory (severity=warning), valid programs produce warnings but zero errors
-- [Phase 04]: Finale position check only activates when level has separate finale exercise (not same as entry)
-- [Phase 04]: Used HTML details/summary for expandable validation lists (zero JS state)
-- [Phase 04]: Added use client to ProgramPreview for useMemo hook support
-- [Phase 05]: Duplicated ARENA_LETTERS coords in route-generator.ts to decouple domain logic from UI component
-- [Phase 05]: Route templates organized by StrengthRating with multiple variants per category for randomized selection
-- [Phase 05]: ArenaCanvas dual-mode via optional props for interactive/read-only rendering
-- [Phase 06]: HTML5 native DnD over library for simple list reordering
-- [Phase 06]: Entry/finale positions locked in drag-and-drop (index 0 and last)
+- [Phase 05]: Duplicated ARENA_LETTERS coords in route-generator.ts to decouple domain logic from UI
+- [Phase 05]: Route templates organized by StrengthRating with multiple variants for randomized selection
 - [Phase 06]: Point-to-segment distance hit testing for route selection (0.04 threshold)
 - [Phase 06]: Dual-mode canvas: route-interactive mutually exclusive with draw-interactive
-- [Phase 07]: Server-side Lyria proxy: GEMINI_API_KEY stays server-only, overriding D-05/D-06 for security
+- [Phase 07]: Server-side Lyria proxy: GEMINI_API_KEY stays server-only
 - [Phase 07]: MusicProvider abstraction with dynamic require in factory for future provider swaps
 - [Phase 08]: Raw IndexedDB API for Blob persistence (no library needed for simple CRUD)
 
@@ -106,11 +77,12 @@ None yet.
 
 ### Blockers/Concerns
 
-- Lyria API is experimental -- may change terms. MusicProvider abstraction planned to mitigate.
-- Research summary was written for Mubert; Lyria-specific API patterns need verification during Phase 3 planning.
+- Lyria API is experimental — MusicProvider abstraction mitigates provider risk
+- Animation engine needs to consume existing route data format from route-generator.ts
+- Music sync (Phase 10) depends on both animation timeline and audio playback being frame-accurate
 
 ## Session Continuity
 
-Last session: 2026-03-23T20:56:16.737Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-23
+Stopped at: v2.0 roadmap created, ready to plan Phase 9
 Resume file: None

@@ -1,138 +1,118 @@
-# Requirements: FreestyleMaker (Intelligent Kür-Designer)
+# Requirements: FreestyleMaker (Intelligent Kur-Designer)
 
-**Defined:** 2026-03-21
-**Core Value:** Rytteren får et professionelt kür-forslag med ruter og musik — genereret på sekunder, ikke uger — som de kan tilpasse og gøre til deres eget.
+**Defined:** 2026-03-21, updated 2026-03-23
+**Core Value:** Rytteren far et professionelt kur-forslag med ruter og musik — genereret pa sekunder, ikke uger — som de kan tilpasse og gore til deres eget.
 
-## v1 Requirements
+## v1 Requirements (completed 2026-03-23)
 
 ### 1. Intelligent Program Generation
-
-- [x] **PROG-01**: System genererer en øvelsesrækkefølge baseret på koreografi-principper: styrker placeret mod C/diagonaler, svagheder korte og diskrete, musikalsk bue (rolig start → klimaks → afslutning)
-- [x] **PROG-02**: Koefficienter indgår i placeringslogikken — høj-koefficient øvelser får bedre placering (mod C, mere plads)
-- [x] **PROG-03**: Temperament påvirker gangartsskift-strategien (rolig hest: gradvis opbygning, energisk: få energi ud tidligt)
-- [x] **PROG-04**: Generatoren producerer varierede forslag — kontrolleret randomisering så samme input ikke giver identisk program
-- [x] **PROG-05**: Indridning er altid første øvelse, afslutning altid sidst
-- [x] **PROG-06**: Symmetri: øvelser der kræver begge hænder fordeles jævnt
+- [x] **PROG-01** through **PROG-06**: Complete (Phase 3)
 
 ### 2. Auto-genererede Arena-ruter
-
-- [x] **ROUTE-01**: System genererer ruter i 20x60 banen for hver øvelse baseret på øvelsestype (extensions på diagonaler, laterale langs banen, pirouetter ved centerlinjen osv.)
-- [x] **ROUTE-02**: Styrke-øvelser placeres i synlige zoner (mod C-enden, diagonaler) og svagheder i mindre synlige zoner (hjørner, kort side)
-- [x] **ROUTE-03**: Ruter forbindes automatisk med overgangslinjer mellem øvelser
-- [x] **ROUTE-04**: Arena-visning viser alle ruter farvekodet per gangart med øvelses-labels
+- [x] **ROUTE-01** through **ROUTE-04**: Complete (Phase 5)
 
 ### 3. Bruger-tilpasning
-
-- [x] **EDIT-01**: Bruger kan flytte øvelser op/ned i rækkefølgen via drag-and-drop
-- [x] **EDIT-02**: Bruger kan justere/flytte ruter i arena-viewet
-- [x] **EDIT-03**: Bruger kan re-generere hele programmet med ét klik (nyt forslag)
-- [x] **EDIT-04**: Ændringer reflekteres real-time i både program-liste og arena-visning
+- [x] **EDIT-01**, **EDIT-02**, **EDIT-04**: Complete (Phase 6)
+- [x] ~~**EDIT-03**~~: Removed (forretningsmodel: et program per kob)
 
 ### 4. Regelvalidering
-
-- [x] **RULE-01**: System validerer at alle obligatoriske øvelser for niveauet er med i programmet
-- [x] **RULE-02**: System validerer at laterale bevægelser dækker minimum 12 meter
-- [x] **RULE-03**: System advarer hvis øvelser fra højere niveau er inkluderet (forbudt)
-- [x] **RULE-04**: System viser valideringsstatus som tydelige fejl/advarsler i UI'et
-- [x] **RULE-05**: Validering kører real-time ved hver bruger-ændring
+- [x] **RULE-01** through **RULE-05**: Complete (Phase 4)
 
 ### 5. Music Generation
-
-- [x] **MUS-01**: Bruger kan generere musik per gangart via Google Lyria med BPM tilpasset gangarten (skridt ~60-72, trav ~140-160, galop ~100-120)
-- [x] **MUS-02**: Bruger kan angive genre/mood/stil via tekstprompt per gangart
-- [ ] **MUS-03**: Bruger kan forhøre genereret musik direkte i browseren
-- [ ] **MUS-04**: Bruger kan re-generere musik for en gangart
-- [ ] **MUS-05**: Progress/loading UI mens musik genereres
+- [x] **MUS-01** through **MUS-05**: Complete (Phase 7)
 
 ### 6. Mix Pipeline
-
-- [ ] **MIX-01**: System kombinerer gangart-numre til ét sammenhængende kür-nummer
-- [ ] **MIX-02**: Øvelsernes varighed vægtes efter coefficient
-- [ ] **MIX-03**: Bruger kan downloade det færdige mix som lydfil
+- [x] **MIX-01** through **MIX-03**: Complete (Phase 8)
 
 ### 7. Persistence
+- [x] **PERS-01** through **PERS-04**: Complete (Phase 2, 8)
 
-- [x] **PERS-01**: Wizard-state gemmes i localStorage og overlever refresh
-- [x] **PERS-02**: Genereret musik gemmes i IndexedDB og overlever refresh
-- [x] **PERS-03**: Arena-ruter og tilpasninger gemmes og overlever refresh
-- [x] **PERS-04**: Bruger kan starte forfra (ryd alt gemt state)
+### 8. Code Quality
+- [x] **QUAL-01**, **QUAL-02**: Complete (Phase 1)
 
-### 8. Code Quality (done)
+## v2 Requirements (Arena Animation & Video Preview)
 
-- [x] **QUAL-01**: generateProgramOrder() deduplikeret til src/lib/program-generator.ts
-- [x] **QUAL-02**: Dead code fjernet
+### 9. Animation
 
-## v2 Requirements
+- [ ] **ANIM-01**: Top-down arena animation med hest+rytter marker der folger ruterne
+- [ ] **ANIM-02**: Markoren bevager sig med korrekt hastighed per ovelse (langsommere skridt, hurtigere galop)
+- [ ] **ANIM-03**: Animation synkroniseret med genereret musik (gangartsskift = musikkskift)
+- [ ] **ANIM-04**: Gangarts-farve pa markoren matcher GAIT_COLORS
 
-### Premium Music
+### 10. Playback
 
-- **PREM-01**: ClicknClear-integration (licenseret musik, premium)
-- **PREM-02**: Mubert-integration (AI-katalog, budget)
-- **PREM-03**: Upload-fallback (egne filer)
+- [ ] **PLAY-01**: Play/pause knap starter/stopper animation + musik samtidig
+- [ ] **PLAY-02**: Seek/slider til at springe til et punkt i programmet
+- [ ] **PLAY-03**: Hastigheds-kontrol (0.5x, 1x, 1.5x, 2x)
+- [ ] **PLAY-04**: Aktuel ovelse highlightes i programlisten under afspilning
+
+### 11. Video Preview
+
+- [ ] **VID-01**: Fuld-skarm preview mode med arena animation + musik
+- [ ] **VID-02**: Tidslinje der viser ovelses-segmenter med farver og labels
+- [ ] **VID-03**: "Afspil kur" knap tilgangelig fra program-preview step
+
+## v3 Requirements (fremtidige)
+
+### AI Video
+- **AIVID-01**: Realistisk AI-genereret video af hest+rytter (LoRA fine-tuning)
 
 ### Export
+- **EXP-01**: PDF/print-eksport af program + arena-ruter
+- **EXP-02**: Video-eksport (MP4/WebM) af arena-animation
 
-- **EXP-01**: PDF/print-eksport af kür-program med arena-ruter
-- **EXP-02**: Video-generering af kür med animation og musik
+### Partnerskab
+- **PREM-01**: ClicknClear licenseret musik-integration
 
 ### Arena
-
-- **ARENA-01**: 20x40 arena-support for LA/LA6/Pony niveauer
+- **ARENA-01**: 20x40 arena-support
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Brugerkonti og authentication | Client-only app |
+| Brugerkonti og authentication | Client-only app forelobig |
 | Backend/database | Al logik i browseren |
-| DAW-style audio editing | Brugere er ryttere, ikke producere |
-| Frihåndstegning i arena | Erstattet af auto-genererede ruter |
-| AI-koreografi (fuld AI) | Vi bruger principper + randomisering, ikke AI |
-| Spotify/streaming | Licensproblemer |
+| 3D hest-animation | For komplekst, top-down er tilstrakkeligt for v2 |
+| AI realistisk video | Kraver LoRA fine-tuning + traningsdata — v3 |
+| 20x40 arena | Udskydes |
 
 ## Traceability
 
+### v1.0 (shipped 2026-03-23)
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| QUAL-01 | Phase 1 | Complete |
-| QUAL-02 | Phase 1 | Complete |
-| PERS-01 | Phase 2 | Complete |
-| PERS-03 | Phase 2 | Complete |
-| PERS-04 | Phase 2 | Complete |
-| PROG-01 | Phase 3 | Complete |
-| PROG-02 | Phase 3 | Complete |
-| PROG-03 | Phase 3 | Complete |
-| PROG-04 | Phase 3 | Complete |
-| PROG-05 | Phase 3 | Complete |
-| PROG-06 | Phase 3 | Complete |
-| RULE-01 | Phase 4 | Complete |
-| RULE-02 | Phase 4 | Complete |
-| RULE-03 | Phase 4 | Complete |
-| RULE-04 | Phase 4 | Complete |
-| RULE-05 | Phase 4 | Complete |
-| ROUTE-01 | Phase 5 | Complete |
-| ROUTE-02 | Phase 5 | Complete |
-| ROUTE-03 | Phase 5 | Complete |
-| ROUTE-04 | Phase 5 | Complete |
-| EDIT-01 | Phase 6 | Complete |
-| EDIT-02 | Phase 6 | Complete |
-| EDIT-03 | Phase 6 | Complete |
-| EDIT-04 | Phase 6 | Complete |
-| MUS-01 | Phase 7 | Complete |
-| MUS-02 | Phase 7 | Complete |
-| MUS-03 | Phase 7 | Pending |
-| MUS-04 | Phase 7 | Pending |
-| MUS-05 | Phase 7 | Pending |
-| MIX-01 | Phase 8 | Pending |
-| MIX-02 | Phase 8 | Pending |
-| MIX-03 | Phase 8 | Pending |
-| PERS-02 | Phase 8 | Complete |
+| QUAL-01, QUAL-02 | Phase 1 | Complete |
+| PERS-01, PERS-03, PERS-04 | Phase 2 | Complete |
+| PROG-01 to PROG-06 | Phase 3 | Complete |
+| RULE-01 to RULE-05 | Phase 4 | Complete |
+| ROUTE-01 to ROUTE-04 | Phase 5 | Complete |
+| EDIT-01, EDIT-02, EDIT-04 | Phase 6 | Complete |
+| MUS-01 to MUS-05 | Phase 7 | Complete |
+| MIX-01 to MIX-03, PERS-02 | Phase 8 | Complete |
+
+### v2.0 (Arena Animation & Video Preview)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ANIM-01 | Phase 9 | Pending |
+| ANIM-02 | Phase 9 | Pending |
+| ANIM-04 | Phase 9 | Pending |
+| ANIM-03 | Phase 10 | Pending |
+| PLAY-01 | Phase 10 | Pending |
+| PLAY-02 | Phase 10 | Pending |
+| PLAY-03 | Phase 10 | Pending |
+| PLAY-04 | Phase 10 | Pending |
+| VID-01 | Phase 11 | Pending |
+| VID-02 | Phase 11 | Pending |
+| VID-03 | Phase 11 | Pending |
 
 **Coverage:**
-- v1 requirements: 31 total (2 complete, 29 pending)
-- Mapped to phases: 31
+- v2 requirements: 11 total
+- Mapped to phases: 11
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after product pivot to intelligent kür-designer*
+*Last updated: 2026-03-23 after v1.0 complete, v2.0 roadmap created*
