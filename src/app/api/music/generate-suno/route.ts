@@ -52,6 +52,25 @@ export async function POST(request: Request) {
     }
 
     const generateData = await generateRes.json();
+
+    // Suno returns errors with HTTP 200 but code != 200 in body
+    if (generateData.code && generateData.code !== 200) {
+      const msg = generateData.msg || "Ukendt Suno fejl";
+      console.error("[suno] API error:", generateData.code, msg);
+
+      if (generateData.code === 429 || msg.includes("credits")) {
+        return NextResponse.json(
+          { error: "Ikke nok Suno credits. Top op på sunoapi.org" },
+          { status: 402 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: `Suno fejl: ${msg}` },
+        { status: 500 }
+      );
+    }
+
     const taskId = generateData.data?.taskId;
 
     if (!taskId) {
