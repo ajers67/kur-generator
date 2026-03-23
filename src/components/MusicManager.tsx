@@ -6,6 +6,7 @@ import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
 import { createMusicProvider } from "@/lib/music-provider";
 import { calculateGaitDurations, maxLyricsForDuration } from "@/lib/gait-duration";
 import type { GaitDuration } from "@/lib/gait-duration";
+import { saveMusicTrack, loadAllMusicTracks } from "@/lib/music-persistence";
 
 // Genre presets (D-10)
 const MUSIC_GENRES = ["Klassisk", "Pop/Rock", "Filmmusik", "Jazz", "Elektronisk"];
@@ -62,10 +63,11 @@ interface GaitTrack {
 interface Props {
   level: KurLevel;
   programOrder: Exercise[];
+  projectId: string;
   onBack: () => void;
 }
 
-export function MusicManager({ level, programOrder, onBack }: Props) {
+export function MusicManager({ level, programOrder, projectId, onBack }: Props) {
   const [genre, setGenre] = useState("Klassisk");
   const [language, setLanguage] = useState("da");
   const [tracks, setTracks] = useState<GaitTrack[]>([]);
@@ -74,6 +76,7 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
   const [playbackProgress, setPlaybackProgress] = useState<Record<number, number>>({});
   const [playbackDuration, setPlaybackDuration] = useState<Record<number, number>>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const loadedRef = useRef(false);
 
   // Get unique gaits from program (exclude overgang)
   const gaits = [...new Set(programOrder.map((e) => e.gait).filter((g) => g !== "overgang"))];
@@ -130,6 +133,34 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Load persisted tracks from IndexedDB on mount (D-14)
+  useEffect(() => {
+    if (!projectId || tracks.length === 0 || loadedRef.current) return;
+    loadedRef.current = true;
+    let cancelled = false;
+    loadAllMusicTracks(projectId, gaits).then((persisted) => {
+      if (cancelled || persisted.size === 0) return;
+      setTracks((prev) =>
+        prev.map((t) => {
+          const saved = persisted.get(t.gait);
+          if (!saved) return t;
+          const url = URL.createObjectURL(saved.blob);
+          return {
+            ...t,
+            audioBlob: saved.blob,
+            audioUrl: url,
+            prompt: saved.prompt || t.prompt,
+            lyrics: saved.lyrics || t.lyrics,
+            promptEdited: !!saved.prompt,
+            lyricsEdited: !!saved.lyrics,
+          };
+        })
+      );
+    });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, tracks]);
+
   const handleGenerate = useCallback(async (gaitIndex: number) => {
     setTracks((prev) =>
       prev.map((t, i) =>
@@ -171,6 +202,15 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
           };
         })
       );
+
+      // Persist to IndexedDB (fire-and-forget, D-15)
+      saveMusicTrack(projectId, track.gait, {
+        blob,
+        prompt: track.prompt,
+        genre,
+        language,
+        lyrics: track.lyrics,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Ukendt fejl ved generering";
       setTracks((prev) =>
@@ -181,7 +221,7 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
         )
       );
     }
-  }, [tracks]);
+  }, [tracks, projectId, genre, language]);
 
   const handleRegenerate = useCallback(async (gaitIndex: number) => {
     const track = tracks[gaitIndex];

@@ -16,6 +16,7 @@ import { HorseProfileForm } from "@/components/HorseProfileForm";
 import { ProgramPreview } from "@/components/ProgramPreview";
 import { ArenaRouteView } from "@/components/ArenaRouteView";
 import { MusicManager } from "@/components/MusicManager";
+import { clearMusicCache } from "@/lib/music-persistence";
 
 export default function Home() {
   const hydrated = useHydrated();
@@ -131,6 +132,7 @@ export default function Home() {
         "Er du sikker på at du vil starte forfra? Dit projekt bliver slettet.",
       )
     ) {
+      clearMusicCache(activeProjectId);
       useProjectStore.getState().deleteProject(activeProjectId);
       useWizardStore.getState().resetToDefaults();
     }
@@ -295,6 +297,7 @@ export default function Home() {
           <MusicManager
             level={selectedLevel}
             programOrder={activeProgramOrder}
+            projectId={activeProjectId}
             onBack={() => setStep("arena")}
           />
         )}
