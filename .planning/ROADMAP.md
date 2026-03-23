@@ -163,7 +163,11 @@ Plans:
   2. The marker speed visually differs between gaits (walk is noticeably slower than canter)
   3. The marker color changes to match the current gait using the existing GAIT_COLORS mapping
   4. The animation renders on the existing ArenaCanvas without breaking route display
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Animation timeline model + useAnimationPlayer hook (pure logic + tests)
+- [ ] 09-02-PLAN.md — Canvas marker rendering + ArenaRouteView integration + visual verification
 
 ### Phase 10: Playback Controls & Music Sync
 **Goal**: Users can control animation playback and hear synchronized music that matches the current gait
@@ -203,6 +207,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. User Customization | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 7. Lyria Music Generation | v1.0 | 2/2 | Complete | 2026-03-23 |
 | 8. Mix Pipeline & Music Persistence | v1.0 | 2/2 | Complete | 2026-03-23 |
-| 9. Arena Animation Engine | v2.0 | 0/? | Not started | - |
+| 9. Arena Animation Engine | v2.0 | 0/2 | Planned | - |
 | 10. Playback Controls & Music Sync | v2.0 | 0/? | Not started | - |
 | 11. Video Preview Mode | v2.0 | 0/? | Not started | - |
