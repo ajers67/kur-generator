@@ -144,7 +144,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — IndexedDB music persistence with load/save and Start forfra cleanup
+- [x] 08-01-PLAN.md — IndexedDB music persistence with load/save and Start forfra cleanup
 - [ ] 08-02-PLAN.md — Coefficient-weighted mix pipeline and Download kur button
 
 ## Progress

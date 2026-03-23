@@ -53,7 +53,7 @@
 ### 7. Persistence
 
 - [x] **PERS-01**: Wizard-state gemmes i localStorage og overlever refresh
-- [ ] **PERS-02**: Genereret musik gemmes i IndexedDB og overlever refresh
+- [x] **PERS-02**: Genereret musik gemmes i IndexedDB og overlever refresh
 - [x] **PERS-03**: Arena-ruter og tilpasninger gemmes og overlever refresh
 - [x] **PERS-04**: Bruger kan starte forfra (ryd alt gemt state)
 
@@ -126,7 +126,7 @@
 | MIX-01 | Phase 8 | Pending |
 | MIX-02 | Phase 8 | Pending |
 | MIX-03 | Phase 8 | Pending |
-| PERS-02 | Phase 8 | Pending |
+| PERS-02 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 31 total (2 complete, 29 pending)
