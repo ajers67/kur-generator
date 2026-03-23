@@ -7,6 +7,9 @@ import { createMusicProvider } from "@/lib/music-provider";
 import { calculateGaitDurations, maxLyricsForDuration } from "@/lib/gait-duration";
 import type { GaitDuration } from "@/lib/gait-duration";
 import { saveMusicTrack, loadAllMusicTracks } from "@/lib/music-persistence";
+import { generateMixTimeline, renderMix, audioBufferToWav, decodeBlobToAudioBuffer } from "@/lib/audio-mixer";
+import type { MixTrack } from "@/lib/audio-mixer";
+import { useWizardStore } from "@/lib/stores/wizard-store";
 
 // Genre presets (D-10)
 const MUSIC_GENRES = ["Klassisk", "Pop/Rock", "Filmmusik", "Jazz", "Elektronisk"];
@@ -75,8 +78,13 @@ export function MusicManager({ level, programOrder, projectId, onBack }: Props) 
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [playbackProgress, setPlaybackProgress] = useState<Record<number, number>>({});
   const [playbackDuration, setPlaybackDuration] = useState<Record<number, number>>({});
+  const [mixing, setMixing] = useState(false);
+  const [mixError, setMixError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadedRef = useRef(false);
+
+  // Get horseName for download filename (D-09)
+  const horseName = useWizardStore((s) => s.horseName);
 
   // Get unique gaits from program (exclude overgang)
   const gaits = [...new Set(programOrder.map((e) => e.gait).filter((g) => g !== "overgang"))];
@@ -314,6 +322,68 @@ export function MusicManager({ level, programOrder, projectId, onBack }: Props) 
   };
 
   const anyGenerating = tracks.some((t) => t.generating);
+  const allTracksReady = tracks.length > 0 && tracks.every((t) => t.audioBlob !== null);
+
+  const handleDownload = useCallback(async () => {
+    if (!allTracksReady) return;
+    setMixing(true);
+    setMixError(null);
+
+    try {
+      // 1. Decode all Blobs to AudioBuffers
+      const mixTracks: MixTrack[] = await Promise.all(
+        tracks.map(async (t) => ({
+          audioBlob: t.audioBlob!,
+          audioBuffer: await decodeBlobToAudioBuffer(t.audioBlob!),
+          bpm: t.bpm,
+          assignedGait: t.gait,
+        }))
+      );
+
+      // 2. Build exercises list with coefficients from programOrder
+      const exercises = programOrder
+        .filter((e) => e.gait !== "overgang")
+        .map((e) => ({ gait: e.gait, name: e.name, coefficient: e.coefficient }));
+
+      // 3. Generate coefficient-weighted timeline
+      const segments = generateMixTimeline(mixTracks, exercises, gaitDurations);
+
+      // 4. Calculate total duration from segments
+      const totalDuration = segments.length > 0
+        ? segments[segments.length - 1].endTime
+        : 0;
+
+      if (totalDuration === 0) {
+        throw new Error("Ingen segmenter at mikse");
+      }
+
+      // 5. Render mix via OfflineAudioContext
+      const mixedBuffer = await renderMix(mixTracks, segments, totalDuration);
+
+      // 6. Convert to WAV Blob
+      const wavBlob = audioBufferToWav(mixedBuffer);
+
+      // 7. Download with filename per D-09
+      const safeName = (horseName || "kur").replace(/[^a-zA-Z0-9æøåÆØÅ_-]/g, "_");
+      const levelName = (level.displayName || level.id).replace(/[^a-zA-Z0-9æøåÆØÅ_-]/g, "_");
+      const filename = `${safeName}-${levelName}-kur.wav`;
+
+      const url = URL.createObjectURL(wavBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Ukendt fejl ved mixning";
+      setMixError(message);
+      console.error("Mix failed:", err);
+    } finally {
+      setMixing(false);
+    }
+  }, [tracks, allTracksReady, programOrder, gaitDurations, horseName, level]);
 
   return (
     <div>
@@ -535,6 +605,42 @@ export function MusicManager({ level, programOrder, projectId, onBack }: Props) 
             )}
           </div>
         ))}
+      </div>
+
+      {/* Download kur */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+        <h3 className="font-semibold text-gray-900 mb-2">Download kur</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Kombiner alle gangart-numre til en samlet kur-fil.
+        </p>
+        <button
+          onClick={handleDownload}
+          disabled={!allTracksReady || mixing || anyGenerating}
+          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+        >
+          {mixing ? "Mixer..." : "Download kur"}
+        </button>
+
+        {mixing && (
+          <div className="flex items-center gap-3 mt-3">
+            <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-gray-600">
+              Kombinerer musik... dette kan tage 5-10 sekunder
+            </span>
+          </div>
+        )}
+
+        {mixError && (
+          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-700">{mixError}</p>
+          </div>
+        )}
+
+        {!allTracksReady && !mixing && (
+          <p className="text-xs text-gray-400 mt-2">
+            Generer musik for alle gangarter for at aktivere download
+          </p>
+        )}
       </div>
 
       {/* Disclaimer */}
