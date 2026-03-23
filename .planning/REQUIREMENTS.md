@@ -34,10 +34,10 @@
 
 ### 9. Animation
 
-- [ ] **ANIM-01**: Top-down arena animation med hest+rytter marker der folger ruterne
-- [ ] **ANIM-02**: Markoren bevager sig med korrekt hastighed per ovelse (langsommere skridt, hurtigere galop)
+- [x] **ANIM-01**: Top-down arena animation med hest+rytter marker der folger ruterne
+- [x] **ANIM-02**: Markoren bevager sig med korrekt hastighed per ovelse (langsommere skridt, hurtigere galop)
 - [ ] **ANIM-03**: Animation synkroniseret med genereret musik (gangartsskift = musikkskift)
-- [ ] **ANIM-04**: Gangarts-farve pa markoren matcher GAIT_COLORS
+- [x] **ANIM-04**: Gangarts-farve pa markoren matcher GAIT_COLORS
 
 ### 10. Playback
 
@@ -96,9 +96,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANIM-01 | Phase 9 | Pending |
-| ANIM-02 | Phase 9 | Pending |
-| ANIM-04 | Phase 9 | Pending |
+| ANIM-01 | Phase 9 | Complete |
+| ANIM-02 | Phase 9 | Complete |
+| ANIM-04 | Phase 9 | Complete |
 | ANIM-03 | Phase 10 | Pending |
 | PLAY-01 | Phase 10 | Pending |
 | PLAY-02 | Phase 10 | Pending |

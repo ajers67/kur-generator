@@ -166,7 +166,7 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Animation timeline model + useAnimationPlayer hook (pure logic + tests)
+- [x] 09-01-PLAN.md — Animation timeline model + useAnimationPlayer hook (pure logic + tests)
 - [ ] 09-02-PLAN.md — Canvas marker rendering + ArenaRouteView integration + visual verification
 
 ### Phase 10: Playback Controls & Music Sync
