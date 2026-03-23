@@ -144,8 +144,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — [To be planned]
-- [ ] 08-02-PLAN.md — [To be planned]
+- [ ] 08-01-PLAN.md — IndexedDB music persistence with load/save and Start forfra cleanup
+- [ ] 08-02-PLAN.md — Coefficient-weighted mix pipeline and Download kur button
 
 ## Progress
 
@@ -161,4 +161,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Auto-generated Arena Routes | 0/2 | Not started | - |
 | 6. User Customization | 0/2 | Not started | - |
 | 7. Lyria Music Generation | 0/2 | Not started | - |
-| 8. Mix Pipeline & Music Persistence | 0/? | Not started | - |
+| 8. Mix Pipeline & Music Persistence | 0/2 | Not started | - |
