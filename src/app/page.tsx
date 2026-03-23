@@ -274,6 +274,7 @@ export default function Home() {
               programOrder={activeProgramOrder}
               ratings={exerciseRatings}
               onRoutesGenerated={setArenaPaths}
+              level={selectedLevel}
             />
 
             <div className="flex justify-between mt-6">

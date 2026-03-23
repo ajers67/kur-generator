@@ -1,21 +1,32 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import type { Exercise, Gait } from "@/data/kur-levels";
+import type { Exercise, Gait, KurLevel } from "@/data/kur-levels";
 import type { StrengthRating } from "@/data/strength-options";
 import { GAIT_COLORS, GAIT_LABELS } from "@/data/kur-levels";
 import { generateRoutes } from "@/lib/route-generator";
 import type { ArenaRoute } from "@/lib/route-generator";
+import { calculateGaitDurations } from "@/lib/gait-duration";
+import { buildAnimationTimeline } from "@/lib/animation-timeline";
+import type { AnimationSegment } from "@/lib/animation-timeline";
+import { useAnimationPlayer } from "@/hooks/useAnimationPlayer";
 import { ArenaCanvas } from "./ArenaCanvas";
 import type { ArenaPath, PathPoint } from "./ArenaCanvas";
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
 
 interface Props {
   programOrder: Exercise[];
   ratings: Record<number, StrengthRating>;
   onRoutesGenerated: (paths: ArenaPath[]) => void;
+  level: KurLevel;
 }
 
-export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Props) {
+export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated, level }: Props) {
   const [seed, setSeed] = useState(() => Date.now());
   const [selectedRouteIndex, setSelectedRouteIndex] = useState<number | null>(null);
   // Track user-moved route positions (overrides generated positions)
@@ -35,6 +46,22 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
       exerciseName: r.exerciseName,
     }));
   }, [routes, movedPaths]);
+
+  // Build animation timeline from routes + gait durations
+  const gaitDurations = useMemo(
+    () => calculateGaitDurations(level, programOrder),
+    [level, programOrder],
+  );
+
+  const timeline: AnimationSegment[] = useMemo(
+    () => buildAnimationTimeline(arenaPaths, gaitDurations),
+    [arenaPaths, gaitDurations],
+  );
+
+  const {
+    marker, playing, currentTime, totalDuration, speed,
+    play, pause, seek, setSpeed,
+  } = useAnimationPlayer(timeline);
 
   // Persist generated/moved routes to wizard store
   const onRoutesGeneratedCb = useCallback(onRoutesGenerated, [onRoutesGenerated]);
@@ -77,10 +104,12 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
   }, [arenaPaths]);
 
   const handleRegenerate = useCallback(() => {
+    pause();
+    seek(0);
     setSeed(Date.now());
     setMovedPaths(new Map());
     setSelectedRouteIndex(null);
-  }, []);
+  }, [pause, seek]);
 
   // Handle route move — update movedPaths with new positions
   const handleRouteMove = useCallback((index: number, newPoints: PathPoint[]) => {
@@ -133,9 +162,38 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
             labels={labels}
             transitions={transitions}
             selectedRouteIndex={selectedRouteIndex}
-            onRouteSelect={setSelectedRouteIndex}
-            onRouteMove={handleRouteMove}
+            onRouteSelect={!playing ? setSelectedRouteIndex : undefined}
+            onRouteMove={!playing ? handleRouteMove : undefined}
+            markerPosition={marker ? { x: marker.x, y: marker.y, gait: marker.gait } : null}
+            activeExerciseIndex={marker?.exerciseIndex}
           />
+          {/* Animation controls */}
+          <div className="flex items-center gap-3 mt-3">
+            <button
+              onClick={playing ? pause : play}
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              {playing ? "Stop" : "Afspil"}
+            </button>
+
+            {/* Time display */}
+            <span className="text-xs text-gray-500 tabular-nums">
+              {formatTime(currentTime)} / {formatTime(totalDuration)}
+            </span>
+
+            {/* Speed selector */}
+            <select
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="text-xs border border-gray-300 rounded px-1.5 py-1"
+            >
+              <option value={0.5}>0.5x</option>
+              <option value={1}>1x</option>
+              <option value={1.5}>1.5x</option>
+              <option value={2}>2x</option>
+            </select>
+          </div>
+
           {/* Gait legend */}
           <div className="flex gap-3 mt-3 text-xs">
             {activeGaits.map((gait) => (
@@ -168,6 +226,7 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
             {programOrder.map((ex, i) => {
               const rating = ratings[ex.id] || "neutral";
               const isSelected = i === selectedRouteIndex;
+              const isAnimationActive = playing && marker?.exerciseIndex === i;
 
               return (
                 <div
@@ -178,6 +237,7 @@ export function ArenaRouteView({ programOrder, ratings, onRoutesGenerated }: Pro
                       ? "bg-blue-50 border-2 border-blue-400"
                       : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
                   }`}
+                  style={isAnimationActive ? { borderLeft: `4px solid ${GAIT_COLORS[ex.gait]}` } : undefined}
                 >
                   <span
                     className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
