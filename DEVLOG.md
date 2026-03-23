@@ -73,10 +73,48 @@ Webplatform til dressur kür-programmering med musik. Ryttere kan sammensætte d
 - Ingen gratis regenerering af program
 - Musikstrategi: ClicknClear (partnerskab) → Suno (AI m/ vokal) → Lyria (instrumental)
 
+## 2026-03-23 - v1.0 SHIPPED + v2.0 startet
+
+### Phase 8: Mix Pipeline & Music Persistence ✓
+- Koefficient-vægtet mix timeline (erstattet lige fordeling)
+- "Download kür" WAV med crossfades mellem gangarter
+- IndexedDB persistence for genereret musik
+- "Start forfra" rydder musik-cache
+
+### Musik-forbedringer
+- Suno API som standard provider (vokal + instrumental)
+- Sprogvælger: Dansk / Engelsk / Instrumental
+- Stil/mood separeret fra sangtekst (Suno style vs lyrics)
+- Dynamisk tegn-grænse baseret på gangartens varighed
+- Varighed per gangart beregnet fra koefficient-vægtning
+- Forbedret fejlhåndtering (429 credits-fejl med klar besked)
+
+### v1.0 Milestone SHIPPED ✓
+Alle 8 faser færdige. Komplet kür-designer med:
+- Intelligent programgenerator med koreografi-principper
+- Auto-genererede arena-ruter (13 øvelsestyper)
+- Drag-and-drop tilpasning
+- FEI/DRF regelvalidering
+- AI musikgenerering (Suno/Lyria) med per-gangart tracks
+- Mix pipeline med WAV download
+- 91+ tests
+
+### v2.0 Arena Animation & Video Preview startet
+- Roadmap: Phase 9-11 (animation, playback, preview)
+- Undersøgt AI video-generering (fal.ai, Kling, Veo) — for dyrt og upræcist for dressur
+- Beslutning: Top-down arena animation først, AI video som v3 (LoRA fine-tuning)
+
+### Phase 9: Arena Animation Engine ✓
+- `animation-timeline.ts`: buildAnimationTimeline, getPositionAtTime
+- `useAnimationPlayer` hook: rAF loop, play/pause/seek/setSpeed
+- ArenaCanvas: farvet markør med trail-effekt
+- ArenaRouteView: play/stop, hastighedskontrol, tidsdisplay
+- 106 tests (15 nye for animation)
+
 ### Næste skridt
-- Suno API key setup og test af musikgenerering
-- Phase 8: Mix Pipeline (kombiner gangart-tracks til ét kür-nummer)
-- Video-generering af kür med hest og rytter (fremtidig milestone)
+- Phase 10: Playback Controls & Music Sync (musik afspilles synkroniseret med animation)
+- Phase 11: Video Preview Mode (fuldskærm, tidslinje)
+- Top op Suno credits og test musikgenerering end-to-end
 - PDF-eksport (fremtidig milestone)
 - ClicknClear-integration (afventer partnerskab)
 - Betalingsintegration (Stripe)
