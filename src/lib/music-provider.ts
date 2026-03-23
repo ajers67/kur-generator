@@ -1,5 +1,14 @@
+export interface GenerateOptions {
+  style: string;        // Genre/mood description (Suno "style" field)
+  lyrics: string;       // Song lyrics (Suno "prompt" field) — empty = instrumental
+  bpm: number;
+  durationSec: number;
+  instrumental: boolean; // true = no vocals
+  language: string;     // "da", "en", "instrumental"
+}
+
 export interface MusicProvider {
-  generateTrack(prompt: string, bpm: number, durationSec: number): Promise<ArrayBuffer>;
+  generateTrack(options: GenerateOptions): Promise<ArrayBuffer>;
 }
 
 export type ProviderType = "suno" | "lyria";

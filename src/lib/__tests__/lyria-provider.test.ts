@@ -1,6 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { LyriaProvider } from "../lyria-provider";
 
+const DEFAULT_OPTIONS = {
+  style: "epic orchestral",
+  lyrics: "",
+  bpm: 80,
+  durationSec: 30,
+  instrumental: true,
+  language: "instrumental",
+};
+
 describe("LyriaProvider", () => {
   const originalFetch = globalThis.fetch;
 
@@ -22,7 +31,7 @@ describe("LyriaProvider", () => {
     globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
 
     const provider = new LyriaProvider();
-    await provider.generateTrack("epic orchestral", 80, 30);
+    await provider.generateTrack(DEFAULT_OPTIONS);
 
     expect(globalThis.fetch).toHaveBeenCalledWith("/api/music/generate", {
       method: "POST",
@@ -41,7 +50,7 @@ describe("LyriaProvider", () => {
     globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
 
     const provider = new LyriaProvider();
-    const result = await provider.generateTrack("test", 60, 20);
+    const result = await provider.generateTrack({ ...DEFAULT_OPTIONS, style: "test", bpm: 60, durationSec: 20 });
 
     expect(result).toBe(mockArrayBuffer);
   });
@@ -56,7 +65,7 @@ describe("LyriaProvider", () => {
     globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
 
     const provider = new LyriaProvider();
-    await expect(provider.generateTrack("test", 60, 20)).rejects.toThrow(
+    await expect(provider.generateTrack({ ...DEFAULT_OPTIONS, style: "test", bpm: 60, durationSec: 20 })).rejects.toThrow(
       "Music generation failed (500): Internal Server Error",
     );
   });
@@ -71,7 +80,7 @@ describe("LyriaProvider", () => {
     globalThis.fetch = vi.fn().mockResolvedValue(mockResponse);
 
     const provider = new LyriaProvider();
-    await expect(provider.generateTrack("test", 60, 20)).rejects.toThrow(
+    await expect(provider.generateTrack({ ...DEFAULT_OPTIONS, style: "test", bpm: 60, durationSec: 20 })).rejects.toThrow(
       "Music generation failed (502): ",
     );
   });

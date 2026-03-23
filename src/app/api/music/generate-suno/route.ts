@@ -17,10 +17,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const { prompt, bpm } = await request.json();
+  const { style, lyrics, bpm, instrumental, language } = await request.json();
 
-  // Build style tag with BPM hint
-  const style = `${prompt}, ${bpm} BPM`;
+  // Build style tag with BPM and language hints
+  const languageHint = language === "da" ? ", dansk sang" : language === "en" ? ", English vocals" : "";
+  const fullStyle = `${style}, ${bpm} BPM${instrumental ? "" : languageHint}`;
 
   try {
     // Step 1: Submit generation request
@@ -32,10 +33,10 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         customMode: true,
-        instrumental: false,
-        style,
+        instrumental: !!instrumental,
+        style: fullStyle,
         title: `Kür ${bpm} BPM`,
-        prompt: prompt,
+        prompt: instrumental ? "" : (lyrics || ""),
         model: "V5",
         callBackUrl: CALLBACK_PLACEHOLDER,
       }),

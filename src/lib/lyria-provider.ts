@@ -1,11 +1,15 @@
-import type { MusicProvider } from "./music-provider";
+import type { MusicProvider, GenerateOptions } from "./music-provider";
 
 export class LyriaProvider implements MusicProvider {
-  async generateTrack(prompt: string, bpm: number, durationSec: number): Promise<ArrayBuffer> {
+  async generateTrack(options: GenerateOptions): Promise<ArrayBuffer> {
     const res = await fetch("/api/music/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, bpm, durationSec }),
+      body: JSON.stringify({
+        prompt: options.style,
+        bpm: options.bpm,
+        durationSec: options.durationSec,
+      }),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");

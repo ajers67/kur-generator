@@ -8,6 +8,16 @@ import { createMusicProvider } from "@/lib/music-provider";
 // Genre presets (D-10)
 const MUSIC_GENRES = ["Klassisk", "Pop/Rock", "Filmmusik", "Jazz", "Elektronisk"];
 
+// Language options for vocals
+const LANGUAGES = [
+  { value: "da", label: "Dansk" },
+  { value: "en", label: "Engelsk" },
+  { value: "instrumental", label: "Instrumental (ingen vokal)" },
+];
+
+// Max characters for Suno lyrics (V5 model)
+const MAX_LYRICS_CHARS = 5000;
+
 // Danish prompt templates per gait (D-12)
 const GAIT_PROMPT_TEMPLATES: Record<string, string> = {
   skridt: "roligt og majestaetisk skridt-tempo",
@@ -36,7 +46,9 @@ function buildDefaultPrompt(genre: string, gait: string, bpm: number): string {
 
 interface GaitTrack {
   gait: string;
-  prompt: string;
+  prompt: string;       // Style/mood description (goes to Suno "style" field)
+  lyrics: string;       // Song lyrics (goes to Suno "prompt" field) — empty = instrumental
+  lyricsEdited: boolean;
   promptEdited: boolean;
   bpm: number;
   audioBlob: Blob | null;
@@ -53,6 +65,7 @@ interface Props {
 
 export function MusicManager({ level, programOrder, onBack }: Props) {
   const [genre, setGenre] = useState("Klassisk");
+  const [language, setLanguage] = useState("da");
   const [tracks, setTracks] = useState<GaitTrack[]>([]);
   const [generatingAll, setGeneratingAll] = useState(false);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -69,6 +82,8 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
       gaits.map((gait) => ({
         gait,
         prompt: buildDefaultPrompt(genre, gait, GAIT_BPM_TARGETS[gait] || 80),
+        lyrics: "",
+        lyricsEdited: false,
         promptEdited: false,
         bpm: GAIT_BPM_TARGETS[gait] || 80,
         audioBlob: null,
@@ -114,10 +129,15 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
       const track = tracks[gaitIndex];
       if (!track) return;
 
-      const arrayBuffer = await provider.generateTrack(
-        track.prompt,
-        track.bpm,
-        TRACK_DURATION_SEC
+      const isInstrumental = language === "instrumental";
+      const arrayBuffer = await provider.generateTrack({
+        style: track.prompt,
+        lyrics: isInstrumental ? "" : track.lyrics,
+        bpm: track.bpm,
+        durationSec: TRACK_DURATION_SEC,
+        instrumental: isInstrumental,
+        language,
+      }
       );
 
       const blob = new Blob([arrayBuffer], { type: "audio/wav" });
@@ -175,6 +195,15 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
     setTracks((prev) =>
       prev.map((t, i) =>
         i === gaitIndex ? { ...t, prompt: value, promptEdited: true } : t
+      )
+    );
+  }, []);
+
+  const handleLyricsChange = useCallback((gaitIndex: number, value: string) => {
+    if (value.length > MAX_LYRICS_CHARS) return;
+    setTracks((prev) =>
+      prev.map((t, i) =>
+        i === gaitIndex ? { ...t, lyrics: value, lyricsEdited: true } : t
       )
     );
   }, []);
@@ -239,22 +268,40 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
         Generer musik til hver gangart med AI. Vaelg genre og tilpas prompts.
       </p>
 
-      {/* Genre selector (D-10) */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Genre
-        </label>
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          {MUSIC_GENRES.map((g) => (
-            <option key={g} value={g}>
-              {g}
-            </option>
-          ))}
-        </select>
+      {/* Genre + Language selectors */}
+      <div className="mb-6 flex gap-4 flex-wrap">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Genre
+          </label>
+          <select
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {MUSIC_GENRES.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Sprog
+          </label>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Generate all button (D-23) */}
@@ -289,18 +336,42 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
               </span>
             </div>
 
-            {/* Prompt textarea (D-11, D-13) */}
+            {/* Style prompt */}
             <div className="mb-3">
               <label className="block text-xs text-gray-500 mb-1">
-                Prompt
+                Stil / mood
               </label>
               <textarea
                 value={track.prompt}
                 onChange={(e) => handlePromptChange(i, e.target.value)}
                 rows={2}
+                maxLength={1000}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
+              <div className="text-right text-xs text-gray-400 mt-0.5">
+                {track.prompt.length}/1000
+              </div>
             </div>
+
+            {/* Lyrics textarea (only shown when not instrumental) */}
+            {language !== "instrumental" && (
+              <div className="mb-3">
+                <label className="block text-xs text-gray-500 mb-1">
+                  Sangtekst (valgfri — lad tom for AI-genereret tekst)
+                </label>
+                <textarea
+                  value={track.lyrics}
+                  onChange={(e) => handleLyricsChange(i, e.target.value)}
+                  rows={3}
+                  maxLength={MAX_LYRICS_CHARS}
+                  placeholder="Skriv sangtekst her, eller lad feltet være tomt..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div className="text-right text-xs text-gray-400 mt-0.5">
+                  {track.lyrics.length}/{MAX_LYRICS_CHARS}
+                </div>
+              </div>
+            )}
 
             {/* Generate / Regenerate buttons */}
             <div className="flex items-center gap-3 mb-3">
@@ -409,7 +480,7 @@ export function MusicManager({ level, programOrder, onBack }: Props) {
       {/* Disclaimer */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
         <p className="text-xs text-gray-500">
-          Musik genereret med Google Lyria AI. Instrumentalmusik beregnet til dressur freestyle.
+          Musik genereret med AI (Suno). Til brug i dressur freestyle.
         </p>
       </div>
 
